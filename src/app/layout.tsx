@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "./components/theme-provider"
+import { Navigation } from "./components/navigation-bar";
 import "./globals.css";
 
 import * as React from "react"
@@ -24,6 +25,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <Navigation />
             {children}
           </ThemeProvider>
         </body>
