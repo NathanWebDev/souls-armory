@@ -4,7 +4,6 @@ import Link from "next/link"
 import {
   NavigationMenu,
   NavigationMenuContent,
-  NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
@@ -12,8 +11,11 @@ import {
   NavigationMenuViewport,
   navigationMenuTriggerStyle
 } from "@/components/ui/navigation-menu"
+import { Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
 
 export function Navigation() {
+  const { setTheme } = useTheme()
   return (
       <NavigationMenu>
           <NavigationMenuList>
@@ -26,6 +28,35 @@ export function Navigation() {
                   <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
                       <Link href="/profile">Profile</Link>
                   </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger>View</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                    <ul className="grid w-[300px] gap-4">
+                        <li>
+                            <NavigationMenuLink asChild>
+                                <Link href="#" onClick={() => setTheme("light")}>
+                                    <div className="flex items-center justify-between">
+                                        <div className="font-medium">Light Mode</div>
+                                        <div>
+                                            <Sun />
+                                        </div>
+                                    </div>
+                                </Link>
+                            </NavigationMenuLink>
+                            <NavigationMenuLink asChild>
+                                <Link href="#" onClick={() => setTheme("dark")}>
+                                    <div className="flex items-center justify-between">
+                                        <div className="font-medium">Dark Mode</div>
+                                        <div>
+                                            <Moon />
+                                        </div>
+                                    </div>
+                                </Link>
+                            </NavigationMenuLink>
+                        </li>
+                    </ul>
+                </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
                   <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
