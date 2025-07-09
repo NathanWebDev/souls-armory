@@ -26,7 +26,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <div className="flex flex-col items-end w-9/10 mt-8 mb-8">
+            <div className="flex flex-col items-end w-9/10 my-2">
               <Navigation />
             </div>
             {children}

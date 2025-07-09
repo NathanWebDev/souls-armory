@@ -15,6 +15,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 
 const FormSchema = z.object({
@@ -48,43 +57,49 @@ export default function Login() {
 
   return (
     <div className="flex justify-center">
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="w-1/2 space-y-6">
-                <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Username</FormLabel>
-                    <FormControl>
-                        <Input {...field} />
-                    </FormControl>
-                    <FormDescription>
-                        This is your public display name.
-                    </FormDescription>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-                <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                        <Input {...field} />
-                    </FormControl>
-                    <FormDescription>
-                        This is your password.
-                    </FormDescription>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-                <Button type="submit">Submit</Button>
-            </form>
-        </Form>
+      <Card className="w-full max-w-sm">
+      <CardHeader>
+        <CardTitle>Login to your account</CardTitle>
+        <CardDescription>
+          Enter your email below to login to your account
+        </CardDescription>
+      </CardHeader>
+        <CardContent>
+          <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                  <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                      <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                          <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                      </FormItem>
+                  )}
+                  />
+                  <div className="my-2">
+                    <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                            <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                  </div>
+                  <Button type="submit">Submit</Button>
+              </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   )
 }
