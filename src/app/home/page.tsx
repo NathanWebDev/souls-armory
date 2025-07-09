@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import Item from "@/app/item/page"
+import Item from "@/app/components/item/page"
 
 export default function Home() {
   const { setTheme } = useTheme()

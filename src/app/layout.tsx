@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "./components/theme-provider"
 import { Navigation } from "./components/navigation-bar";
+import { Toaster } from "@/components/ui/sonner"
 import "./globals.css";
 
 import * as React from "react"
@@ -25,8 +26,11 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Navigation />
+            <div className="flex flex-col items-end w-9/10 mt-8 mb-8">
+              <Navigation />
+            </div>
             {children}
+            <Toaster />
           </ThemeProvider>
         </body>
       </html>

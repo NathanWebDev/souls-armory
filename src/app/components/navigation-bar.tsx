@@ -15,14 +15,24 @@ import {
 
 export function Navigation() {
   return (
-    <NavigationMenu>
-        <NavigationMenuList>
-            <NavigationMenuItem>
-                <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                    <Link href="/">Home</Link>
-                </NavigationMenuLink>
-            </NavigationMenuItem>
-        </NavigationMenuList>
-    </NavigationMenu>
+      <NavigationMenu>
+          <NavigationMenuList>
+              <NavigationMenuItem>
+                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                      <Link href="/">Home</Link>
+                  </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                      <Link href="/profile">Profile</Link>
+                  </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                      <Link href="/login">Login</Link>
+                  </NavigationMenuLink>
+              </NavigationMenuItem>
+          </NavigationMenuList>
+      </NavigationMenu>
   )
 }
