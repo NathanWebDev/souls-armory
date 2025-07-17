@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "./components/theme-provider"
 import { Navigation } from "./components/navigation-bar";
+
 import { Toaster } from "@/components/ui/sonner"
+
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { AppSidebar } from "./components/sidebar";
+
 import "./globals.css";
 
 import * as React from "react"
@@ -29,8 +34,12 @@ export default function RootLayout({
             <div className="flex flex-col items-end w-9/10 my-2">
               <Navigation />
             </div>
-            {children}
-            <Toaster />
+            <SidebarProvider open={true}>
+              <SidebarTrigger />
+              <AppSidebar />
+              {children}
+              <Toaster />
+            </SidebarProvider>
           </ThemeProvider>
         </body>
       </html>
