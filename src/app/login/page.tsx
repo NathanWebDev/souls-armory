@@ -61,7 +61,7 @@ export default function Login() {
       <CardHeader>
         <CardTitle>Login to your account</CardTitle>
         <CardDescription>
-          Enter your email below to login to your account
+          Enter your username or email below to login to your account
         </CardDescription>
       </CardHeader>
         <CardContent>
@@ -72,7 +72,7 @@ export default function Login() {
                   name="username"
                   render={({ field }) => (
                       <FormItem>
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>Username/Email</FormLabel>
                       <FormControl>
                           <Input {...field} />
                       </FormControl>
@@ -88,14 +88,14 @@ export default function Login() {
                         <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                            <Input {...field} />
+                            <Input type="password" {...field} />
                         </FormControl>
                         <FormMessage />
                         </FormItem>
                     )}
                     />
                   </div>
-                  <Button type="submit">Submit</Button>
+                  <Button type="submit" className="mt-2">Submit</Button>
               </form>
           </Form>
         </CardContent>
