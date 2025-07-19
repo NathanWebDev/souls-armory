@@ -13,11 +13,6 @@ import {
 import { Moon, Sun } from "lucide-react"
 import {
   ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
 } from '@clerk/nextjs'
 import { useTheme } from "next-themes"
 
@@ -68,7 +63,7 @@ export function Navigation() {
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                    <Link href="/user/login" className={navigationMenuTriggerStyle()}>
+                    <Link href="/user/sign-in" className={navigationMenuTriggerStyle()}>
                         Login
                     </Link>
                 </NavigationMenuLink>
