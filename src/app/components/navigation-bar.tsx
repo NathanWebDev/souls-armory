@@ -8,16 +8,24 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  NavigationMenuViewport,
   navigationMenuTriggerStyle
 } from "@/components/ui/navigation-menu"
 import { Moon, Sun } from "lucide-react"
+import {
+  ClerkProvider,
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from '@clerk/nextjs'
 import { useTheme } from "next-themes"
 
 export function Navigation() {
   const { setTheme } = useTheme()
   return (
       <NavigationMenu>
+        <ClerkProvider>
           <NavigationMenuList>
               <NavigationMenuItem>
                   <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
@@ -26,7 +34,7 @@ export function Navigation() {
               </NavigationMenuItem>
               <NavigationMenuItem>
                   <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                      <Link href="/profile">Profile</Link>
+                      <Link href="/user/profile">Profile</Link>
                   </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
@@ -59,11 +67,14 @@ export function Navigation() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                      <Link href="/login">Login</Link>
-                  </NavigationMenuLink>
+                <NavigationMenuLink asChild>
+                    <Link href="/user/login" className={navigationMenuTriggerStyle()}>
+                        Login
+                    </Link>
+                </NavigationMenuLink>
               </NavigationMenuItem>
           </NavigationMenuList>
+        </ClerkProvider>
       </NavigationMenu>
   )
 }
