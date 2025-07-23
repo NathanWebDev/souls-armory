@@ -31,7 +31,9 @@ export default function RootLayout({
             <div className="flex flex-col items-end my-2 mr-12">
               <Navigation />
             </div>
+            <div className="flex justify-center items-center">
               {children}
+            </div>
           </ThemeProvider>
         </body>
       </html>

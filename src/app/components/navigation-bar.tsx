@@ -15,9 +15,12 @@ import {
   ClerkProvider,
 } from '@clerk/nextjs'
 import { useTheme } from "next-themes"
+import { useState } from "react"
 
 export function Navigation() {
   const { setTheme } = useTheme()
+
+  const [isLoggedIn, setIsLoggedIn] = useState(true)
   return (
       <NavigationMenu>
         <ClerkProvider>
@@ -27,11 +30,13 @@ export function Navigation() {
                       <Link href="/">Home</Link>
                   </NavigationMenuLink>
               </NavigationMenuItem>
-              <NavigationMenuItem>
-                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                      <Link href="/user/profile">Profile</Link>
-                  </NavigationMenuLink>
-              </NavigationMenuItem>
+              { (isLoggedIn) &&
+                <NavigationMenuItem>
+                    <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                        <Link href="/user/profile">Profile</Link>
+                    </NavigationMenuLink>
+                </NavigationMenuItem>
+              }
               <NavigationMenuItem>
                 <NavigationMenuTrigger>View</NavigationMenuTrigger>
                 <NavigationMenuContent>
