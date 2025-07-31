@@ -11,9 +11,6 @@ import {
   navigationMenuTriggerStyle
 } from "@/components/ui/navigation-menu"
 import { Moon, Sun } from "lucide-react"
-import {
-  ClerkProvider,
-} from '@clerk/nextjs'
 import { useTheme } from "next-themes"
 import { useState } from "react"
 
@@ -23,7 +20,6 @@ export function Navigation() {
   const [isLoggedIn, setIsLoggedIn] = useState(true)
   return (
       <NavigationMenu>
-        <ClerkProvider>
           <NavigationMenuList>
               <NavigationMenuItem>
                   <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
@@ -74,7 +70,6 @@ export function Navigation() {
                 </NavigationMenuLink>
               </NavigationMenuItem>
           </NavigationMenuList>
-        </ClerkProvider>
       </NavigationMenu>
   )
 }

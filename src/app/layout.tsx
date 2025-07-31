@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "./components/theme-provider"
 import { Navigation } from "./components/navigation-bar";
-import { ClerkProvider } from "@clerk/nextjs";
 
 import "./globals.css";
 
@@ -18,7 +17,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
     <html lang="en" suppressHydrationWarning>
         <head />
         <body>
@@ -37,6 +35,5 @@ export default function RootLayout({
           </ThemeProvider>
         </body>
       </html>
-      </ClerkProvider>
   );
 }
