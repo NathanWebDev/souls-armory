@@ -1,22 +1,29 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "../components/sidebar";
+import { AppSidebar } from "@/components/app-sidebar"
+import { SiteHeader } from "@/components/site-header"
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@/components/ui/sidebar"
 
-import "../globals.css";
-
-import * as React from "react"
-
-export default function RootLayout({
+export default function Page({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <>
-        <SidebarProvider open={true}>
-            <SidebarTrigger />
-            <AppSidebar />
-            {children}
-        </SidebarProvider>
-    </>
-  );
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 72)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <AppSidebar variant="inset" />
+      <SidebarInset>
+        <SiteHeader />
+        {children}
+      </SidebarInset>
+    </SidebarProvider>
+  )
 }

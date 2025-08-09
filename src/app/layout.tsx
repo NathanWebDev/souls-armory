@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "./components/theme-provider"
-import { Navigation } from "./components/navigation-bar";
 
 import "./globals.css";
 
@@ -26,9 +25,6 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <div className="flex flex-col items-end my-2 mr-12">
-              <Navigation />
-            </div>
             <div className="flex justify-center items-center">
               {children}
             </div>
