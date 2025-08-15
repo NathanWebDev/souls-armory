@@ -89,7 +89,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <div>
                 <IconFlame className="!size-5" />
-                <span className="text-base font-semibold">Souls Foundry</span>
+                <span className="font-bold select-none">Souls Armory</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>

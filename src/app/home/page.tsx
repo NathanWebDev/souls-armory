@@ -7,6 +7,7 @@ export default function Home() {
     <>
       <h1>This is home also item</h1>
       <Item />
+      
     </>
   )
 }
