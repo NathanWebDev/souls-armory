@@ -34,15 +34,17 @@ export default function SearchBar({ commands }: ICommandProps) {
         onValueChange={handleValueChange}
       />
       {
-        <CommandList>
-          {open &&
-            filteredCommands.length > 0 &&
-            filteredCommands.map((command) => (
-              <CommandItem key={command.value} value={command.value}>
-                {command.label}
-              </CommandItem>
-            ))}
-        </CommandList>
+        <div className="flex-grow">
+          <CommandList>
+            {open &&
+              filteredCommands.length > 0 &&
+              filteredCommands.map((command) => (
+                <CommandItem key={command.value} value={command.value}>
+                  {command.label}
+                </CommandItem>
+              ))}
+          </CommandList>
+        </div>
       }
     </Command>
   );
