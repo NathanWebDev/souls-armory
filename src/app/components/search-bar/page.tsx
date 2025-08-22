@@ -26,7 +26,6 @@ export default function SearchBar({ commands }: ICommandProps) {
         command.label.toLowerCase().includes(inputValue.toLowerCase())
       )
     : [];
-  console.log("filteredCommands", filteredCommands);
   return (
     <div className="relative w-full">
       <Command className="rounded-lg border shadow-md w-full my-1">
