@@ -28,24 +28,24 @@ export default function SearchBar({ commands }: ICommandProps) {
     : [];
   console.log("filteredCommands", filteredCommands);
   return (
-    <Command className="rounded-lg border shadow-md">
-      <CommandInput
-        placeholder="Search for items..."
-        onValueChange={handleValueChange}
-      />
-      {
-        <div className="flex-grow">
-          <CommandList>
-            {open &&
-              filteredCommands.length > 0 &&
-              filteredCommands.map((command) => (
+    <div className="relative w-full">
+      <Command className="rounded-lg border shadow-md w-full my-1">
+        <CommandInput
+          placeholder="Search for items..."
+          onValueChange={handleValueChange}
+        />
+        {open && filteredCommands.length > 0 && (
+          <div className="absolute left-0 top-full z-50 w-full border rounded-lg shadow-lg bg-popover mt-1">
+            <CommandList>
+              {filteredCommands.map((command) => (
                 <CommandItem key={command.value} value={command.value}>
                   {command.label}
                 </CommandItem>
               ))}
-          </CommandList>
-        </div>
-      }
-    </Command>
+            </CommandList>
+          </div>
+        )}
+      </Command>
+    </div>
   );
 }
