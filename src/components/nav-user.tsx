@@ -28,6 +28,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { string } from "better-auth"
 
 export function NavUser({
   user,
@@ -39,6 +40,10 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
+
+  function routingHandeler(route: string) {
+    window.location.href = route
+  }
 
   return (
     <SidebarMenu>
@@ -74,7 +79,7 @@ export function NavUser({
                   <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
+                <div onClick = {() => routingHandeler("/user/profile")} className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
                   <span className="text-muted-foreground truncate text-xs">
                     {user.email}
@@ -84,21 +89,17 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => routingHandeler("/user/profile")}>
                 <IconUserCircle />
-                Account
+                Profile
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconCreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => routingHandeler("/user/profile")}>
                 <IconNotification />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => routingHandeler("/user/login")}>
               <IconLogout />
               Log out
             </DropdownMenuItem>
