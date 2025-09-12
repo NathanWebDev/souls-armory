@@ -11,10 +11,14 @@ import { z } from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form"
 import { signIn } from "../../server/users"
 
+import { createAuthClient } from "better-auth/client"
+
 const loginFormSchema = z.object({
   email: z.string().min(2, { message: "Please enter a valid email address" }).max(50).email({ message: "Please enter a valid email address" }),
   password: z.string().min(8, { message: "Password must be at least 8 characters" }).max(50),
 })
+
+const authClient =  createAuthClient()
 
 export function LoginForm({
   className,
@@ -28,10 +32,15 @@ export function LoginForm({
     },
   })
  
-  // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof loginFormSchema>) {
     signIn(values.email, values.password);
   }
+
+  const discordSignIn = async () => {
+    const data = await authClient.signIn.social({
+        provider: "discord"
+    })
+}
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -94,7 +103,7 @@ export function LoginForm({
                       </svg>
                       <span className="sr-only">Login with Google</span>
                     </Button>
-                    <Button variant="outline" type="button" className="w-full">
+                    <Button variant="outline" type="button" className="w-full" onClick={discordSignIn}>
                       <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="Discord--Streamline-Simple-Icons" height="24" width="24">
                         <desc>
                           Discord Streamline Icon: https://streamlinehq.com
