@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 
+import { toast } from "sonner"
+
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -34,19 +36,27 @@ export function SignUpForm({
     },
   })
  
-  function onSubmit(values: z.infer<typeof signUpFormSchema>) {
-    signUp(values.email, values.password, values.username);
+  async function onSubmit(values: z.infer<typeof signUpFormSchema>) {
+    const { success, message } = await signUp(values.email, values.password, values.username);
+
+    if (success) {
+      toast.success(message as string);
+    } else {
+      toast.error(message as string);
+    }
   }
 
   const discordSignIn = async () => {
     const data = await authClient.signIn.social({
-        provider: "discord"
+        provider: "discord",
+        callbackURL: "/home"
     })
   }
 
   const googleSignIn = async () => {
     const data = await authClient.signIn.social({
       provider: "google",
+      callbackURL: "/home"
     });
   };
 
