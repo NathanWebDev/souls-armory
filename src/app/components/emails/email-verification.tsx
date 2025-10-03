@@ -9,7 +9,7 @@ export default function EmailVerification({ username, verificationLink }: EmailV
       <h2>Verify Your Account</h2>
       <p>Hello {username},</p>
       <p>
-        Thank you for signing up on Souls Foundry! Please verify your account by clicking the button below:
+        Thank you for signing up on Souls Armory! Please verify your account by clicking the button below:
       </p>
       <a
         href={verificationLink}

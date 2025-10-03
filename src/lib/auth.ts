@@ -18,7 +18,7 @@ export const auth = betterAuth({
     emailVerification: {
       sendVerificationEmail: async ({ user, url }) => {
         resend.emails.send({
-          from: `Souls Foundry <${process.env.SENDER_EMAIL_ID}>`,
+          from: `Souls Armory <${process.env.SENDER_EMAIL_ID}>`,
           to: user.email, //Will be replaced with user.email in production
           subject: "Verify your email for Souls Armory",
           react: EmailVerification({ username: user.name, verificationLink: url })
