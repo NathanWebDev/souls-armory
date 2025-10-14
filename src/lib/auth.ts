@@ -7,6 +7,7 @@ import { nextCookies } from "better-auth/next-js";
 import { Resend } from "resend";
 
 import EmailVerification from "../app/components/emails/email-verification";
+import ForgotPassword from "../app/components/emails/reset-password";
 
 const resend = new Resend(process.env.RESEND_API_KEY as string);
  
@@ -17,7 +18,7 @@ export const auth = betterAuth({
           from: `Souls Armory <${process.env.SENDER_EMAIL_ID}>`,
           to: user.email, //Will be replaced with user.email in production
           subject: "Reset your password for Souls Armory",
-          text: `Reset your password for Souls Armory by clicking the link: ${url}`,
+          react: ForgotPassword({ username: user.name, resetLink: url })
         })
       },
       enabled: true,
