@@ -12,6 +12,14 @@ const resend = new Resend(process.env.RESEND_API_KEY as string);
  
 export const auth = betterAuth({
     emailAndPassword: {
+      sendResetPassword: async ({ user, url }) => {
+        resend.emails.send({
+          from: `Souls Armory <${process.env.SENDER_EMAIL_ID}>`,
+          to: user.email, //Will be replaced with user.email in production
+          subject: "Reset your password for Souls Armory",
+          text: `Reset your password for Souls Armory by clicking the link: ${url}`,
+        })
+      },
       enabled: true,
       requireEmailVerification: true
     },
