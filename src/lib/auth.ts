@@ -16,7 +16,7 @@ export const auth = betterAuth({
       sendResetPassword: async ({ user, url }) => {
         resend.emails.send({
           from: `Souls Armory <${process.env.SENDER_EMAIL_ID}>`,
-          to: user.email, //Will be replaced with user.email in production
+          to: user.email,
           subject: "Reset your password for Souls Armory",
           react: ForgotPassword({ username: user.name, resetLink: url })
         })
@@ -28,7 +28,7 @@ export const auth = betterAuth({
       sendVerificationEmail: async ({ user, url }) => {
         resend.emails.send({
           from: `Souls Armory <${process.env.SENDER_EMAIL_ID}>`,
-          to: user.email, //Will be replaced with user.email in production
+          to: user.email,
           subject: "Verify your email for Souls Armory",
           react: EmailVerification({ username: user.name, verificationLink: url })
         })
