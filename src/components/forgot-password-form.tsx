@@ -1,5 +1,7 @@
 "use client"
 
+import { formRules } from "@/app/components/form-rules"
+
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -13,7 +15,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { createAuthClient } from "better-auth/client"
 
 const emailFormSchema = z.object({
-  email: z.string().min(2, { message: "Please enter a valid email address" }).max(50).email({ message: "Please enter a valid email address" })
+  email: z.string()
+  .min(formRules.emailRules.minLength.minLengthValue, { message: formRules.emailRules.minLength.errorMessage })
+  .email({ message: formRules.emailRules.minLength.errorMessage })
 })
 
 const authClient =  createAuthClient()

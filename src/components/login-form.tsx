@@ -1,5 +1,7 @@
 "use client"
 
+import { formRules } from "@/app/components/form-rules"
+
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -14,8 +16,12 @@ import { signIn } from "../../server/users"
 import { createAuthClient } from "better-auth/client"
 
 const loginFormSchema = z.object({
-  email: z.string().min(2, { message: "Please enter a valid email address" }).max(50).email({ message: "Please enter a valid email address" }),
-  password: z.string().min(8, { message: "Password must be at least 8 characters" }).max(50),
+  email: z.string()
+  .min(formRules.emailRules.minLength.minLengthValue, { message: formRules.emailRules.minLength.errorMessage })
+  .email({ message: formRules.emailRules.minLength.errorMessage }),
+  password: z.string()
+  .min(formRules.passwordRules.minLength.minLengthValue, { message: formRules.passwordRules.minLength.errorMessage })
+  .max(formRules.passwordRules.maxLength.maxLengthValue, { message: formRules.passwordRules.maxLength.errorMessage }),
 })
 
 const authClient =  createAuthClient()

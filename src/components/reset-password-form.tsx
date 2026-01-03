@@ -1,5 +1,7 @@
 "use client";
 
+import { formRules } from "@/app/components/form-rules";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -28,8 +30,11 @@ import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
-  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
-  confirmPassword: z.string().min(8),
+  password: z.string()
+  .min(formRules.passwordRules.minLength.minLengthValue, { message: formRules.passwordRules.minLength.errorMessage })
+  .max(formRules.passwordRules.maxLength.maxLengthValue, { message: formRules.passwordRules.maxLength.errorMessage }),
+  confirmPassword: z.string()
+  .min(formRules.passwordRules.minLength.minLengthValue),
 });
 
 export function ResetPasswordForm({
