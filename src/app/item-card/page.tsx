@@ -8,16 +8,41 @@ export default function ItemCardPage() {
         <div className="w-[600px] flex flex-col gap-6 mt-10">
             <Card className="w-full">
                 <CardHeader>
-                    Moonlight Greatsword
+                    Dark Moon Greatsword
                 </CardHeader>
                 <div className="flex place-content-between">
                     <Separator orientation="vertical" className="ml-8">
-                        <CardDescription className="w-50 ml-5">
-                            This is some text
-                        </CardDescription>
-                        <CardDescription className="w-50 ml-5">
-                            This is some more text
-                        </CardDescription>
+                        <div className="type-attack ml-5">
+                            <CardDescription className="w-50">
+                                Greatsword
+                            </CardDescription>
+                            <CardDescription className="w-50">
+                                Standard/Pierce
+                            </CardDescription>
+                        </div>
+                        <div className="mt-10 ml-5">
+                            <CardDescription className="w-50">
+                                Moonlight Greatsword
+                            </CardDescription>
+                            <div>
+                                <div className="flex place-content-between w-[200px]">
+                                    <CardDescription>
+                                        FP Cost
+                                    </CardDescription>
+                                    <CardDescription>
+                                        40( &emsp; - &emsp; -)
+                                    </CardDescription>
+                                </div>
+                                <div className="flex place-content-between w-[200px]">
+                                    <CardDescription>
+                                        Weight
+                                    </CardDescription>
+                                    <CardDescription>
+                                        10.0
+                                    </CardDescription>
+                                </div>
+                            </div>
+                        </div>
                     </Separator>
                     <Image className="flex-end mr-10"
                     src={'https://eldenring.wiki.fextralife.com/file/Elden-Ring/dark_moon_greatsword_weapon_elden_ring_wiki_guide_200px.png'}
@@ -25,6 +50,20 @@ export default function ItemCardPage() {
                     width={128}
                     height={128}>
                     </Image>
+                </div>
+                <div className="w-[500px] attr-container flex place-content-between ml-8">
+                    <div className="attr-scaling">
+                        <CardDescription>Attribute Scaling</CardDescription>
+                        <Separator orientation="vertical">
+
+                        </Separator>
+                    </div>
+                    <div className="attr-required">
+                        <CardDescription>Attributes Required</CardDescription>
+                        <Separator orientation="vertical">
+
+                        </Separator>
+                    </div>
                 </div>
                 <Separator />
                 <CardHeader>
