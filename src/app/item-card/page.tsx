@@ -51,19 +51,52 @@ export default function ItemCardPage() {
                     height={128}>
                     </Image>
                 </div>
-                <div className="w-[500px] attr-container flex place-content-between ml-8">
+                <div className="w-[500px] attr-container grid grid-cols-2 ml-8">
                     <div className="attr-scaling">
-                        <CardDescription>Attribute Scaling</CardDescription>
+                        <CardDescription className="flex">
+                            <Image
+                            className="mr-5 -ml-2"
+                            src={`/icons/attribute_scaling.png`}
+                            alt="Attributes Required Icon"
+                            width={14}
+                            height={14}>
+                            </Image>
+                            Attribute Scaling
+                            </CardDescription>
                         <Separator orientation="vertical">
 
                         </Separator>
                     </div>
-                    <div className="attr-required">
-                        <CardDescription>Attributes Required</CardDescription>
+                    <div className="attr-required ml-[100px]">
+                        <CardDescription className="flex">
+                            <Image
+                            className="mr-5 -ml-2"
+                            src={`/icons/attributes_required.png`}
+                            alt="Attributes Required Icon"
+                            width={14}
+                            height={14}>
+                            </Image>
+                            Attributes Required
+                            </CardDescription>
                         <Separator orientation="vertical">
 
                         </Separator>
                     </div>
+                    <div className="passive-effects mt-[50px]">
+                    <CardDescription className="flex">
+                        <Image
+                        className="mr-5 -ml-1.5"
+                        src={`/icons/passive_effects.png`}
+                        alt="Attributes Required Icon"
+                        width={14}
+                        height={14}>
+                        </Image>
+                        Passive Effects
+                        </CardDescription>
+                    <Separator orientation="vertical">
+
+                    </Separator>
+                </div>
                 </div>
                 <Separator />
                 <CardHeader>
