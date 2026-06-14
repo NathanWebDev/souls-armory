@@ -1,14 +1,14 @@
 import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from "@/components/ui/item";
 import Image from "next/image";
 
-interface ItemCard {
-    id: number,
+export interface ItemCard {
+    id: string,
     title: string,
     imgUrl: string,
     type: string
 }
 
-interface ItemCardData {
+export interface ItemCardData {
     itemTileData: ItemCard[]
 }
 
