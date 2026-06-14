@@ -11,7 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form"
-import { signIn } from "../../server/users"
+import { signIn } from "../server/users"
 
 import { createAuthClient } from "better-auth/client"
 
