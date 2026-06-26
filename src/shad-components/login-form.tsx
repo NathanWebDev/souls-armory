@@ -3,24 +3,19 @@
 import { formRules } from "@/app/components/form-rules"
 
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-
-import { toast } from "sonner"
+import { Button } from "@/shad-components/ui/button"
+import { Card, CardContent } from "@/shad-components/ui/card"
+import { Input } from "@/shad-components/ui/input"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form"
-import { signUp } from "../server/users"
+import { signIn } from "../server/users"
 
 import { createAuthClient } from "better-auth/client"
 
-const signUpFormSchema = z.object({
-  username: z.string()
-  .min(formRules.userNameRules.minLength.minLengthValue, { message: formRules.userNameRules.minLength.errorMessage })
-  .max(formRules.userNameRules.maxLength.maxLengthValue, { message: formRules.userNameRules.maxLength.errorMessage }),
+const loginFormSchema = z.object({
   email: z.string()
   .min(formRules.emailRules.minLength.minLengthValue, { message: formRules.emailRules.minLength.errorMessage })
   .email({ message: formRules.emailRules.minLength.errorMessage }),
@@ -31,40 +26,31 @@ const signUpFormSchema = z.object({
 
 const authClient =  createAuthClient()
 
-export function SignUpForm({
+export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const form = useForm<z.infer<typeof signUpFormSchema>>({
-    resolver: zodResolver(signUpFormSchema),
+  const form = useForm<z.infer<typeof loginFormSchema>>({
+    resolver: zodResolver(loginFormSchema),
     defaultValues: {
-      username: "",
       email: "",
       password: "",
     },
   })
  
-  async function onSubmit(values: z.infer<typeof signUpFormSchema>) {
-    const { success, message } = await signUp(values.email, values.password, values.username);
-
-    if (success) {
-      toast.success(message as string);
-    } else {
-      toast.error(message as string);
-    }
+  function onSubmit(values: z.infer<typeof loginFormSchema>) {
+    signIn(values.email, values.password);
   }
 
   const discordSignIn = async () => {
     const data = await authClient.signIn.social({
-        provider: "discord",
-        callbackURL: "/home"
+        provider: "discord"
     })
   }
 
   const googleSignIn = async () => {
     const data = await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/home"
     });
   };
 
@@ -76,22 +62,10 @@ export function SignUpForm({
               <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 md:p-8">
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col items-center text-center">
-                    <h1 className="text-2xl font-bold">Create your account</h1>
-                  </div>
-                  <div className="grid gap-3">
-                    <FormField
-                      control={form.control}
-                      name="username"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Username</FormLabel>
-                          <FormControl>
-                            <Input placeholder="username" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <h1 className="text-2xl font-bold">Welcome back</h1>
+                    <p className="text-muted-foreground text-balance">
+                      Login to your Souls Armory account
+                    </p>
                   </div>
                   <div className="grid gap-3">
                     <FormField
@@ -122,9 +96,12 @@ export function SignUpForm({
                         </FormItem>
                       )}
                     />
+                    <a href="/user/forgot-password" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
+                      Forgot your password?
+                    </a>
                   </div>
                   <Button type="submit" className="w-full">
-                    Sign up
+                    Login
                   </Button>
                   <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                     <span className="bg-card text-muted-foreground relative z-10 px-2">
@@ -139,7 +116,7 @@ export function SignUpForm({
                           fill="currentColor"
                         />
                       </svg>
-                      <span className="sr-only">Sign up with Google</span>
+                      <span className="sr-only">Login with Google</span>
                     </Button>
                     <Button variant="outline" type="button" className="w-full" onClick={discordSignIn}>
                       <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="Discord--Streamline-Simple-Icons" height="24" width="24">
@@ -151,13 +128,13 @@ export function SignUpForm({
                           fill="currentColor"
                         />
                       </svg>
-                      <span className="sr-only">Sign up with Discord</span>
+                      <span className="sr-only">Login with Discord</span>
                     </Button>
                   </div>
                   <div className="text-center text-sm">
-                    Already have an account?{" "}
-                    <a href="/user/login" className="underline underline-offset-4">
-                      Log in
+                    Don&apos;t have an account?{" "}
+                    <a href="/user/sign-up" className="underline underline-offset-4">
+                      Sign up
                     </a>
                   </div>
                 </div>

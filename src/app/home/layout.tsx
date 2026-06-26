@@ -1,9 +1,9 @@
-import { AppSidebar } from "@/components/app-sidebar"
-import { SiteHeader } from "@/components/site-header"
+import { AppSidebar } from "@/shad-components/app-sidebar"
+import { SiteHeader } from "@/shad-components/site-header"
 import {
   SidebarInset,
   SidebarProvider,
-} from "@/components/ui/sidebar"
+} from "@/shad-components/ui/sidebar"
 
 export default function Page({
   children,

@@ -3,9 +3,9 @@
 import { formRules } from "@/app/components/form-rules"
 
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/shad-components/ui/button"
+import { Card, CardContent } from "@/shad-components/ui/card"
+import { Input } from "@/shad-components/ui/input"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"

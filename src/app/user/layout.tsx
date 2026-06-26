@@ -1,6 +1,4 @@
-import { Toaster } from "@/components/ui/sonner";
-
-import "../globals.css";
+import { Toaster } from "@/shad-components/ui/sonner";
 
 import * as React from "react"
 

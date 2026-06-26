@@ -1,4 +1,4 @@
-import { ResetPasswordForm } from "@/components/reset-password-form";
+import { ResetPasswordForm } from "@/shad-components/reset-password-form";
 
 export default function ResetPasswordPage() {
     return (

@@ -5,7 +5,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
+} from "@/shad-components/ui/command"
 import React from "react";
 
 interface ICommandProps {

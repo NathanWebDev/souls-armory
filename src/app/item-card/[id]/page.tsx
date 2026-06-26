@@ -1,7 +1,7 @@
 import Image from "next/image";
-import { Card, CardDescription, CardHeader } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardDescription, CardHeader } from "@/shad-components/ui/card";
+import { Separator } from "@/shad-components/ui/separator";
+import { Skeleton } from "@/shad-components/ui/skeleton";
 
 interface PageProps {
   params: Promise<{ id: string }>;

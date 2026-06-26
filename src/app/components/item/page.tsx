@@ -1,4 +1,4 @@
-import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from "@/components/ui/item";
+import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from "@/shad-components/ui/item";
 import Image from "next/image";
 
 export interface ItemCard {

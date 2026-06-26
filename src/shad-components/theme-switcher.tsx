@@ -10,7 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarGroupLabel
-} from "@/components/ui/sidebar"
+} from "@/shad-components/ui/sidebar"
 
 import { useTheme } from "next-themes"
 

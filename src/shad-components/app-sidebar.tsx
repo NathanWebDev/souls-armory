@@ -12,8 +12,8 @@ import {
   IconMoon
 } from "@tabler/icons-react"
 
-import { NavMain } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
+import { NavMain } from "@/shad-components/nav-main"
+import { NavUser } from "@/shad-components/nav-user"
 import {
   Sidebar,
   SidebarContent,
@@ -22,7 +22,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/shad-components/ui/sidebar"
 import { ThemeSwitcher } from "./theme-switcher"
 
 const data = {
