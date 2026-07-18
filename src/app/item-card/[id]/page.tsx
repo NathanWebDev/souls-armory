@@ -20,7 +20,7 @@ export default async function ItemCardPage({ params }: PageProps) {
                 <Card className="w-full">
                     <CardHeader className="flex flex-row items-center justify-between">
                         Dark Moon Greatsword
-                        <StarContainer></StarContainer>
+                        <StarContainer rating={4.6} className="w-24 h-8"></StarContainer>
                     </CardHeader>
                     <div className="flex place-content-between">
                         <Separator orientation="vertical" className="ml-8">

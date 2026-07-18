@@ -1,6 +1,8 @@
 import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from "@/shad-components/ui/item";
 import Image from "next/image";
 
+import StarContainer from "../star-container/page";
+
 export interface ItemCard {
     id: string,
     title: string,
@@ -34,6 +36,7 @@ export default function ItemTileContainer({itemTileData}: ItemCardData){
                                     {tileData.title}
                                 </ItemTitle>
                                 <ItemDescription>{tileData.type}</ItemDescription>
+                                <StarContainer rating={tileData.rating} className="w-16 h-4"></StarContainer>
                             </ItemContent>
                         </a>
                     </Item>
