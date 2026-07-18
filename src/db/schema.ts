@@ -4,6 +4,8 @@ import {
   timestamp,
   boolean,
   integer,
+  char,
+  doublePrecision
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
@@ -70,7 +72,15 @@ export const item = pgTable("item", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   imgUrl: text("imgUrl").notNull(),
-  type: text("type").notNull()
+  type: text("type").notNull(),
+  rating: doublePrecision("rating").notNull(),
+  weaponArt: text("weaponArt"),
+  fpCost: integer("fpCost").array(),
+  weight: doublePrecision("weight").notNull(),
+  attributeScaling: char("atrributeScaling").array(),
+  attributesRequired: integer("attributesRequired").array(),
+  passiveEffects: text("passiveEffects").array(),
+  description: text("description").notNull()
 })
 
 export const schema = { user, session, account, verification, item };
