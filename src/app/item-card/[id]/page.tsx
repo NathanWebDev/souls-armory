@@ -4,6 +4,8 @@ import ItemNotFound from "@/app/components/item-not-found/page";
 import { Separator } from "@/shad-components/ui/separator";
 import { Skeleton } from "@/shad-components/ui/skeleton";
 
+import StarContainer from "../../components/star-container/page";
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }
@@ -16,8 +18,9 @@ export default async function ItemCardPage({ params }: PageProps) {
             <div className="w-[600px] flex flex-col gap-6 mt-10">
                 <p>Card ID: {id}</p>
                 <Card className="w-full">
-                    <CardHeader>
+                    <CardHeader className="flex flex-row items-center justify-between">
                         Dark Moon Greatsword
+                        <StarContainer></StarContainer>
                     </CardHeader>
                     <div className="flex place-content-between">
                         <Separator orientation="vertical" className="ml-8">
