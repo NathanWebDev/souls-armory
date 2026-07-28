@@ -12,7 +12,7 @@ async function seed() {
     try {
         await db.insert(schema.item).values([
             { 
-                id: '1', 
+                id: 'dark-moon-greatsword', 
                 title: 'Dark Moon Greatsword', 
                 imgUrl: 'https://eldenring.wiki.fextralife.com/file/Elden-Ring/dark_moon_greatsword_weapon_elden_ring_wiki_guide_200px.png',
                 type: 'Greatsword',

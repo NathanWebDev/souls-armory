@@ -5,28 +5,43 @@ import { Separator } from "@/shad-components/ui/separator";
 import { Skeleton } from "@/shad-components/ui/skeleton";
 
 import StarContainer from "../../components/star-container/page";
+import { getFullCard } from "@/lib/item-routes";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+export interface CardProps {
+    id: string,
+    title: string,
+    imgUrl: string,
+    type: string,
+    rating: number,
+    weaponArt: string | null;
+    fpCost: number[] | null;
+    weight: number;
+    attributeScaling: string[] | null;
+    attributesRequired: number[] | null;
+    passiveEffects: string[] | null;
+    description: string;
+}
+
 export default async function ItemCardPage({ params }: PageProps) {
     const { id } = await params;
-    const parsedId = Number(id);
-    if (!Number.isNaN(parsedId)){
+    const fullCardData = await getFullCard(id);
+    if (!Number.isNaN(id)){
         return (
             <div className="w-[600px] flex flex-col gap-6 mt-10">
-                <p>Card ID: {id}</p>
                 <Card className="w-full">
                     <CardHeader className="flex flex-row items-center justify-between">
-                        Dark Moon Greatsword
-                        <StarContainer rating={4.6} className="w-24 h-8"></StarContainer>
+                        {fullCardData.title}
+                        <StarContainer rating={fullCardData.rating} className="w-24 h-8"></StarContainer>
                     </CardHeader>
                     <div className="flex place-content-between">
                         <Separator orientation="vertical" className="ml-8">
                             <div className="type-attack ml-5">
                                 <CardDescription className="w-50">
-                                    Greatsword
+                                    {fullCardData.type}
                                 </CardDescription>
                                 <CardDescription className="w-50">
                                     Standard/Pierce
@@ -34,7 +49,7 @@ export default async function ItemCardPage({ params }: PageProps) {
                             </div>
                             <div className="mt-10 ml-5">
                                 <CardDescription className="w-50">
-                                    Moonlight Greatsword
+                                    {fullCardData.weaponArt}
                                 </CardDescription>
                                 <div>
                                     <div className="flex place-content-between w-[200px]">
@@ -42,7 +57,7 @@ export default async function ItemCardPage({ params }: PageProps) {
                                             FP Cost
                                         </CardDescription>
                                         <CardDescription>
-                                            40( &emsp; - &emsp; -)
+                                            {fullCardData.fpCost}( &emsp; - &emsp; -)
                                         </CardDescription>
                                     </div>
                                     <div className="flex place-content-between w-[200px]">
@@ -50,7 +65,7 @@ export default async function ItemCardPage({ params }: PageProps) {
                                             Weight
                                         </CardDescription>
                                         <CardDescription>
-                                            10.0
+                                            {fullCardData.weight}
                                         </CardDescription>
                                     </div>
                                 </div>
@@ -113,8 +128,8 @@ export default async function ItemCardPage({ params }: PageProps) {
                     <Separator />
                     <CardHeader>
                         Description:
-                        <CardDescription>
-                        Descriptive text talking about the card
+                        <CardDescription className="whitespace-pre-wrap">
+                            <p>{fullCardData.description}</p>
                         </CardDescription>
                     </CardHeader>
                 </Card>
