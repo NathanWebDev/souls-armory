@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Card, CardDescription, CardHeader } from "@/shad-components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/shad-components/ui/card";
 import ItemNotFound from "@/app/components/item-not-found/page";
 import { Separator } from "@/shad-components/ui/separator";
 import { Skeleton } from "@/shad-components/ui/skeleton";
@@ -26,6 +26,8 @@ export interface CardProps {
     description: string;
 }
 
+const attributeLabels: string[] = ['Str', 'Dex', 'Int', 'Fai', 'Arc'];
+
 export default async function ItemCardPage({ params }: PageProps) {
     const { id } = await params;
     const fullCardData = await getFullCard(id);
@@ -34,7 +36,7 @@ export default async function ItemCardPage({ params }: PageProps) {
             <div className="w-[600px] flex flex-col gap-6 mt-10">
                 <Card className="w-full">
                     <CardHeader className="flex flex-row items-center justify-between">
-                        {fullCardData.title}
+                        <CardTitle>{fullCardData.title}</CardTitle>
                         <StarContainer rating={fullCardData.rating} className="w-24 h-8"></StarContainer>
                     </CardHeader>
                     <div className="flex place-content-between">
@@ -91,7 +93,17 @@ export default async function ItemCardPage({ params }: PageProps) {
                                 Attribute Scaling
                                 </CardDescription>
                             <Separator orientation="vertical">
-
+                                <div className="grid grid-cols-2 gap-x-24 gap-y-4 ml-4 mt-4">
+                                    {fullCardData.attributeScaling?.map((attr: string, index: number) => (
+                                        <div
+                                            key={`attr-${attributeLabels[index]}`}
+                                            className="grid grid-cols-[60px_auto] items-center"
+                                            >
+                                            <CardTitle>{attributeLabels[index]}</CardTitle>
+                                            <CardTitle className="text-right">{attr}</CardTitle>
+                                        </div>
+                                    ))}
+                                </div>
                             </Separator>
                         </div>
                         <div className="attr-required ml-[100px]">
@@ -106,7 +118,17 @@ export default async function ItemCardPage({ params }: PageProps) {
                                 Attributes Required
                                 </CardDescription>
                             <Separator orientation="vertical">
-
+                                <div className="grid grid-cols-2 gap-x-24 gap-y-4 ml-4 mt-4">
+                                    {fullCardData.attributesRequired?.map((attr: number, index: number) => (
+                                        <div
+                                            key={`attr-${attributeLabels[index]}`}
+                                            className="grid grid-cols-[60px_auto] items-center"
+                                            >
+                                            <CardTitle>{attributeLabels[index]}</CardTitle>
+                                            <CardTitle className="text-right">{attr}</CardTitle>
+                                        </div>
+                                    ))}
+                                </div>
                             </Separator>
                         </div>
                         <div className="passive-effects mt-[50px]">

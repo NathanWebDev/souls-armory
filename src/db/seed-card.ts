@@ -18,9 +18,9 @@ async function seed() {
     weaponArt: "Moonlight Greatsword",
     fpCost: [32],
     weight: 10.0,
-    attributeScaling: ['D', 'D', 'B'],
-    attributesRequired: [16, 11, 38],
-    passiveEffects: ["Frost Buildup (55)"],
+    attributeScaling: ['D', 'D', 'B', '-', '-'],
+    attributesRequired: [16, 11, 38, 0, 0],
+    passiveEffects: ["Frost Buildup (55)", "-", "-"],
     description:
       "A Moon Greatsword, bestowed by a Carian queen upon her spouse to honor long-standing tradition.\nOne of the legendary armaments.\nRanni's sigil is a full moon, cold and leaden, and this sword is but a beam of its light.",
   })
