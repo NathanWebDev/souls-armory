@@ -34,7 +34,7 @@ export default async function ItemCardPage({ params }: PageProps) {
     const fullCardData = await getFullCard(id);
     if (fullCardData){
         return (
-            <div className="w-[650px] flex flex-col gap-6 mt-10">
+            <div className="w-[600px] flex flex-col gap-6 mt-10">
                 <Card className="w-full">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle>{fullCardData.title}<CardDescription className="mt-2">{fullCardData.gameTitle}</CardDescription></CardTitle>
@@ -60,7 +60,16 @@ export default async function ItemCardPage({ params }: PageProps) {
                                             FP Cost
                                         </CardDescription>
                                         <CardDescription>
-                                            {fullCardData.fpCost}( &emsp; - &emsp; -)
+                                            {fullCardData.fpCost && (
+                                            <>
+                                                {fullCardData.fpCost[0] > 0 ? fullCardData.fpCost[0] : "-"}
+                                                {" ("}
+                                                {fullCardData.fpCost[1] > 0 ? fullCardData.fpCost[1] : "-"}
+                                                {" \u2003 "}
+                                                {fullCardData.fpCost[2] > 0 ? fullCardData.fpCost[2] : "-"}
+                                                {")"}
+                                            </>
+                                        )}
                                         </CardDescription>
                                     </div>
                                     <div className="flex place-content-between w-[200px]">
@@ -142,13 +151,22 @@ export default async function ItemCardPage({ params }: PageProps) {
                             height={14}>
                             </Image>
                             Passive Effects
-                            </CardDescription>
+                        </CardDescription>
                         <Separator orientation="vertical">
-
+                            <div className="flex flex-col w-full gap-2 ml-4 mt-4">
+                                {fullCardData.passiveEffects?.map((effect: string, index: number) => (
+                                <CardTitle
+                                    key={`passive-effect-${index}`}
+                                    className="w-full whitespace-nowrap"
+                                >
+                                    {effect}
+                                </CardTitle>
+                                ))}
+                            </div>
                         </Separator>
                     </div>
                     </div>
-                    <Separator />
+                    <Separator className="mt-12" />
                     <CardHeader>
                         Description:
                         <CardDescription className="whitespace-pre-wrap">
