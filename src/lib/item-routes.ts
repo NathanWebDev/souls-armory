@@ -21,6 +21,7 @@ export async function getFullCard(id: string): Promise<CardProps> {
     const card = await db.select({
       id: schema.item.id,
       title: schema.item.title,
+      gameTitle: schema.item.gameTitle,
       imgUrl: schema.item.imgUrl,
       type: schema.item.type,
       rating: schema.item.rating,

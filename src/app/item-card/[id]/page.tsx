@@ -14,6 +14,7 @@ interface PageProps {
 export interface CardProps {
     id: string,
     title: string,
+    gameTitle: string,
     imgUrl: string,
     type: string,
     rating: number,
@@ -31,12 +32,12 @@ const attributeLabels: string[] = ['Str', 'Dex', 'Int', 'Fai', 'Arc'];
 export default async function ItemCardPage({ params }: PageProps) {
     const { id } = await params;
     const fullCardData = await getFullCard(id);
-    if (!Number.isNaN(id)){
+    if (fullCardData){
         return (
-            <div className="w-[600px] flex flex-col gap-6 mt-10">
+            <div className="w-[650px] flex flex-col gap-6 mt-10">
                 <Card className="w-full">
                     <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle>{fullCardData.title}</CardTitle>
+                        <CardTitle>{fullCardData.title}<CardDescription className="mt-2">{fullCardData.gameTitle}</CardDescription></CardTitle>
                         <StarContainer rating={fullCardData.rating} className="w-24 h-8"></StarContainer>
                     </CardHeader>
                     <div className="flex place-content-between">
@@ -74,8 +75,8 @@ export default async function ItemCardPage({ params }: PageProps) {
                             </div>
                         </Separator>
                         <Image className="flex-end mr-10"
-                        src={'https://eldenring.wiki.fextralife.com/file/Elden-Ring/dark_moon_greatsword_weapon_elden_ring_wiki_guide_200px.png'}
-                        alt="Moonlight Greatsword Image"
+                        src={fullCardData.imgUrl}
+                        alt={fullCardData.title}
                         width={128}
                         height={128}>
                         </Image>
