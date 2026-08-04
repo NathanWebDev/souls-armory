@@ -63,7 +63,7 @@ export default async function ItemCardPage({ params }: PageProps) {
                                             {fullCardData.fpCost && (
                                             <>
                                                 {fullCardData.fpCost[0] > 0 ? fullCardData.fpCost[0] : "-"}
-                                                {" ("}
+                                                {"( \u2003"}
                                                 {fullCardData.fpCost[1] > 0 ? fullCardData.fpCost[1] : "-"}
                                                 {" \u2003 "}
                                                 {fullCardData.fpCost[2] > 0 ? fullCardData.fpCost[2] : "-"}
