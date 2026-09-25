@@ -30,6 +30,10 @@ import {
 } from "@/shad-components/ui/sidebar"
 import { string } from "better-auth"
 
+export function routingHandeler(route: string) {
+  window.location.href = route
+}
+
 export function NavUser({
   user,
 }: {
@@ -40,10 +44,6 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
-
-  function routingHandeler(route: string) {
-    window.location.href = route
-  }
 
   return (
     <SidebarMenu>

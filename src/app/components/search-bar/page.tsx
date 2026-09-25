@@ -1,5 +1,6 @@
 "use client"
 
+import { routingHandeler } from "@/shad-components/nav-user";
 import {
   Command,
   CommandInput,
@@ -37,7 +38,7 @@ export default function SearchBar({ commands }: ICommandProps) {
           <div className="absolute left-0 top-full z-50 w-full border rounded-lg shadow-lg bg-popover mt-1">
             <CommandList>
               {filteredCommands.map((command) => (
-                <CommandItem key={command.value} value={command.value}>
+                <CommandItem key={command.value} value={command.value} onSelect={() => routingHandeler("item-card/" + command.value)}>
                   {command.label}
                 </CommandItem>
               ))}
