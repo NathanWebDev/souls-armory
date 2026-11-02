@@ -6,7 +6,7 @@ import { eq } from 'drizzle-orm';
 
 import { SearchItems } from '@/shad-components/site-header';
 
-export async function getAllItems(): Promise<ItemCard[]> {
+export async function getAllItems(game?: string): Promise<ItemCard[]> {
   const items = await db.select({
     id: schema.item.id,
     title: schema.item.title,
@@ -14,7 +14,8 @@ export async function getAllItems(): Promise<ItemCard[]> {
     type: schema.item.type,
     rating: schema.item.rating,
   })
-  .from(schema.item);
+  .from(schema.item)
+  .where(game ? eq(schema.item.gameTitle, game) : undefined);
 
   return items;
 }
@@ -22,7 +23,8 @@ export async function getAllItems(): Promise<ItemCard[]> {
 export async function getSearchBarItems(): Promise<SearchItems[]> {
   const searchItems = await db.select({
     value: schema.item.id,
-    label: schema.item.title
+    label: schema.item.title,
+    gameTitle: schema.item.gameTitle
   })
   .from(schema.item);
 

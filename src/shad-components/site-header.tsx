@@ -6,6 +6,7 @@ import { getSearchBarItems } from "@/lib/item-routes"
 export interface SearchItems {
     value: string,
     label: string,
+    gameTitle: string,
 }
 
 export async function SiteHeader() {
