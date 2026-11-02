@@ -10,6 +10,13 @@ export const formRules = {
         }
     },
 
+    descriptionRules: {
+        maxLength: {
+            maxLengthValue: 500,
+            errorMessage: "Description must be 500 characters or fewer"
+        }
+    },
+
     emailRules: {
         minLength: {
             minLengthValue: 2,
