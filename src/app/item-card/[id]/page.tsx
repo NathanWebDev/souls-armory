@@ -77,7 +77,7 @@ export default async function ItemCardPage({ params }: PageProps) {
                                             Weight
                                         </CardDescription>
                                         <CardDescription>
-                                            {fullCardData.weight}
+                                            {fullCardData.weight.toFixed(1)}
                                         </CardDescription>
                                     </div>
                                 </div>

@@ -17,11 +17,11 @@ export interface ItemCardData {
 
 export default function ItemTileContainer({itemTileData}: ItemCardData){
     return(
-        <div className="w-full px-4 lg:px-8 mt-6">
+        <div className="w-full px-4 lg:px-8 my-6">
             <ItemGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {itemTileData.map((tileData: ItemCard, index: number) => (
                     <Item key={index} variant="outline" asChild role="listitem">
-                        <a href={"item-card/" + tileData.id}>
+                        <a href={"/item-card/" + tileData.id}>
                             <ItemMedia>
                                 <Image
                                     src={tileData.imgUrl}
