@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  devIndicators: false,
   images: {
     remotePatterns: [
       'eldenring', 'bloodborne', 'darksouls3', 'darksouls2', 'darksouls', 'demonssouls'

@@ -16,6 +16,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { signUp } from "../server/users"
 
 import { createAuthClient } from "better-auth/client"
+import Image from "next/image"
 
 const signUpFormSchema = z.object({
   username: z.string()
@@ -55,14 +56,14 @@ export function SignUpForm({
   }
 
   const discordSignIn = async () => {
-    const data = await authClient.signIn.social({
+    await authClient.signIn.social({
         provider: "discord",
         callbackURL: "/home"
     })
   }
 
   const googleSignIn = async () => {
-    const data = await authClient.signIn.social({
+    await authClient.signIn.social({
       provider: "google",
       callbackURL: "/home"
     });
@@ -164,10 +165,11 @@ export function SignUpForm({
               </form>
           </Form>
           <div className="bg-muted relative hidden md:block">
-            <img
+            <Image
               src="/placeholder.svg"
               alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+              fill
+              className="object-cover dark:brightness-[0.2] dark:grayscale"
             />
           </div>
         </CardContent>

@@ -13,6 +13,8 @@ import { z } from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form"
 
 import { createAuthClient } from "better-auth/client"
+import Image from "next/image"
+import { toast } from "sonner"
 
 const emailFormSchema = z.object({
   email: z.string()
@@ -34,10 +36,13 @@ export function ForgotPasswordForm({
   })
 
   async function onSubmit(values: z.infer<typeof emailFormSchema>) {
-    const { data, error } = await authClient.requestPasswordReset({
+    await authClient.requestPasswordReset({
       email: values.email,
       redirectTo: "/user/reset-password"
     })
+
+    // Same message whether or not the email has an account, so the page does not reveal which emails exist.
+    toast.success("If that email has an account, a reset link is on its way.")
   }
 
   return (
@@ -50,7 +55,7 @@ export function ForgotPasswordForm({
                   <div className="flex flex-col items-center text-center">
                     <h1 className="text-2xl font-bold">Forgot Password</h1>
                     <p className="text-muted-foreground text-balance">
-                      Enter your email address below and we'll send you a link to reset your password.
+                      Enter your email address below and we&apos;ll send you a link to reset your password.
                     </p>
                   </div>
                   <div className="grid gap-3">
@@ -75,10 +80,11 @@ export function ForgotPasswordForm({
               </form>
           </Form>
           <div className="bg-muted relative hidden md:block">
-            <img
+            <Image
               src="/placeholder.svg"
               alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+              fill
+              className="object-cover dark:brightness-[0.2] dark:grayscale"
             />
           </div>
         </CardContent>
