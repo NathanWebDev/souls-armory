@@ -7,12 +7,10 @@ import { db } from './drizzle';
 type NewItem = typeof schema.item.$inferInsert;
 
 async function upsertItem(values: NewItem) {
-  const { id, ...updates } = values;
-
   await db
     .insert(schema.item)
     .values(values)
-    .onConflictDoUpdate({ target: schema.item.id, set: updates });
+    .onConflictDoUpdate({ target: schema.item.id, set: values });
 }
 
 async function seed() {

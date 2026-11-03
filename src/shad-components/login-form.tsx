@@ -11,9 +11,11 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form"
-import { signIn } from "../server/users"
 
 import { createAuthClient } from "better-auth/client"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 const loginFormSchema = z.object({
   email: z.string()
@@ -30,6 +32,7 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const router = useRouter()
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -38,19 +41,32 @@ export function LoginForm({
     },
   })
  
-  function onSubmit(values: z.infer<typeof loginFormSchema>) {
-    signIn(values.email, values.password);
+  async function onSubmit(values: z.infer<typeof loginFormSchema>) {
+    const { error } = await authClient.signIn.email({
+      email: values.email,
+      password: values.password,
+    });
+
+    if (error) {
+      toast.error(error.message ?? "An error occurred during sign in.");
+      return;
+    }
+
+    router.push("/home");
+    router.refresh();
   }
 
   const discordSignIn = async () => {
-    const data = await authClient.signIn.social({
-        provider: "discord"
+    await authClient.signIn.social({
+        provider: "discord",
+        callbackURL: "/home"
     })
   }
 
   const googleSignIn = async () => {
-    const data = await authClient.signIn.social({
+    await authClient.signIn.social({
       provider: "google",
+      callbackURL: "/home"
     });
   };
 
@@ -141,10 +157,11 @@ export function LoginForm({
               </form>
           </Form>
           <div className="bg-muted relative hidden md:block">
-            <img
+            <Image
               src="/placeholder.svg"
               alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+              fill
+              className="object-cover dark:brightness-[0.2] dark:grayscale"
             />
           </div>
         </CardContent>
