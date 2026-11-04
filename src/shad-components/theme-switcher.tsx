@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { flushSync } from "react-dom"
 import { type Icon } from "@tabler/icons-react"
 
 import {
@@ -26,6 +27,12 @@ export function ThemeSwitcher({
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   const { setTheme } = useTheme()
 
+  const changeTheme = (theme: string) => {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    if (!document.startViewTransition || reduceMotion) return setTheme(theme)
+    document.startViewTransition(() => flushSync(() => setTheme(theme)))
+  }
+
   return (
     <SidebarGroup {...props}>
     <SidebarGroupLabel>Change Theme</SidebarGroupLabel>
@@ -34,7 +41,7 @@ export function ThemeSwitcher({
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild>
-                <a href="#"onClick={() => setTheme(item.action)}>
+                <a href="#" onClick={(e) => { e.preventDefault(); changeTheme(item.action) }}>
                   <item.icon />
                   <span>{item.title}</span>
                 </a>
