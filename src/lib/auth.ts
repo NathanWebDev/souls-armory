@@ -9,6 +9,8 @@ import { Resend } from "resend";
 
 import EmailVerification from "../app/components/emails/email-verification";
 import ForgotPassword from "../app/components/emails/reset-password";
+import DeleteAccount from "../app/components/emails/delete-account";
+import AccountDeleted from "../app/components/emails/account-deleted";
 
 const resend = new Resend(process.env.RESEND_API_KEY as string);
  
@@ -58,6 +60,25 @@ export const auth = betterAuth({
           type: "string",
           required: false,
           input: true
+        }
+      },
+      deleteUser: {
+        enabled: true,
+        afterDelete: async (user) => {
+          await resend.emails.send({
+            from: `Souls Armory <${process.env.SENDER_EMAIL_ID}>`,
+            to: user.email,
+            subject: "Your Souls Armory account has been deleted",
+            react: AccountDeleted({ username: user.name })
+          })
+        },
+        sendDeleteAccountVerification: async ({ user, url }) => {
+          resend.emails.send({
+            from: `Souls Armory <${process.env.SENDER_EMAIL_ID}>`,
+            to: user.email,
+            subject: "Confirm account deletion for Souls Armory",
+            react: DeleteAccount({ username: user.name, deleteLink: url })
+          })
         }
       }
     },

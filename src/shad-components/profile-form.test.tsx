@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const updateUser = vi.fn();
+const deleteUser = vi.fn();
 const getAvatarUpload = vi.fn();
 const refresh = vi.fn();
 const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
@@ -10,7 +11,10 @@ const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn() }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh }) }));
 vi.mock("sonner", () => ({ toast }));
 vi.mock("@/lib/auth-client", () => ({
-  authClient: { updateUser: (...args: unknown[]) => updateUser(...args) },
+  authClient: {
+    updateUser: (...args: unknown[]) => updateUser(...args),
+    deleteUser: (...args: unknown[]) => deleteUser(...args),
+  },
 }));
 vi.mock("@/server/profile", () => ({
   getAvatarUpload: (...args: unknown[]) => getAvatarUpload(...args),
@@ -39,6 +43,8 @@ function pictureInput() {
 describe("ProfileForm", () => {
   beforeEach(() => {
     updateUser.mockReset();
+    deleteUser.mockReset();
+    deleteUser.mockResolvedValue({ error: null });
     getAvatarUpload.mockReset();
     refresh.mockReset();
     toast.success.mockReset();
@@ -88,6 +94,34 @@ describe("ProfileForm", () => {
 
     expect(await screen.findByText("Description must be 500 characters or fewer")).toBeInTheDocument();
     expect(updateUser).not.toHaveBeenCalled();
+  });
+
+  it("asks for confirmation before requesting account deletion", async () => {
+    renderForm();
+    await userEvent.click(screen.getByRole("button", { name: "Delete profile" }));
+    expect(deleteUser).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole("button", { name: "Send confirmation email" }));
+
+    await waitFor(() => expect(deleteUser).toHaveBeenCalledWith({ callbackURL: "/user/login" }));
+    expect(toast.success).toHaveBeenCalledWith("Check your email to confirm deletion");
+  });
+
+  it("does not request deletion when cancelled", async () => {
+    renderForm();
+    await userEvent.click(screen.getByRole("button", { name: "Delete profile" }));
+    await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(deleteUser).not.toHaveBeenCalled();
+  });
+
+  it("shows the error when requesting deletion fails", async () => {
+    deleteUser.mockResolvedValue({ error: { message: "Nope" } });
+    renderForm();
+    await userEvent.click(screen.getByRole("button", { name: "Delete profile" }));
+    await userEvent.click(screen.getByRole("button", { name: "Send confirmation email" }));
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("Nope"));
   });
 
   it("rejects a file type that is not allowed before uploading", async () => {

@@ -9,6 +9,15 @@ import { getAvatarUpload } from "@/server/profile"
 import { Avatar, AvatarFallback, AvatarImage } from "@/shad-components/ui/avatar"
 import { Button } from "@/shad-components/ui/button"
 import { Card, CardContent } from "@/shad-components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/shad-components/ui/dialog"
 import { Textarea } from "@/shad-components/ui/textarea"
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -44,6 +53,8 @@ export function ProfileForm({
   const fileInput = React.useRef<HTMLInputElement>(null)
   const [imageUrl, setImageUrl] = React.useState(image)
   const [uploading, setUploading] = React.useState(false)
+  const [deleteOpen, setDeleteOpen] = React.useState(false)
+  const [deleting, setDeleting] = React.useState(false)
 
   const form = useForm<z.infer<typeof profileFormSchema>>({
     resolver: zodResolver(profileFormSchema),
@@ -61,6 +72,20 @@ export function ProfileForm({
       toast.success("Profile saved")
       router.refresh()
     }
+  }
+
+  async function onDelete() {
+    setDeleting(true)
+    const { error } = await authClient.deleteUser({ callbackURL: "/user/login" })
+    setDeleting(false)
+
+    if (error) {
+      toast.error(error.message ?? "Could not start account deletion.")
+      return
+    }
+
+    setDeleteOpen(false)
+    toast.success("Check your email to confirm deletion")
   }
 
   async function onPictureChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -172,6 +197,29 @@ export function ProfileForm({
               </Button>
             </form>
           </Form>
+          <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+            <DialogTrigger asChild>
+              <Button type="button" variant="destructive" className="w-full">
+                Delete profile
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete your profile?</DialogTitle>
+                <DialogDescription>
+                  We&apos;ll email you a link to confirm. Your account is only deleted after you click it.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setDeleteOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="button" variant="destructive" disabled={deleting} onClick={onDelete}>
+                  {deleting ? "Sending..." : "Send confirmation email"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </CardContent>
       </Card>
     </div>
