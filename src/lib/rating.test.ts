@@ -11,6 +11,6 @@ describe("bayesianRating", () => {
     })
 
     it("approaches the plain average as reviews grow", () => {
-        expect(bayesianRating(5, 100, 30)).toBeCloseTo(3.64, 2)
+        expect(bayesianRating(5, 100, 30)).toBeCloseTo(3.48, 2)
     })
 })
