@@ -8,6 +8,7 @@ import ReviewForm from "@/app/components/review/review-form";
 import ReviewList from "@/app/components/review/review-list";
 import ReviewSkeleton from "@/app/components/review/review-skeleton";
 import { auth } from "@/lib/auth";
+import { Toaster } from "@/shad-components/ui/sonner";
 
 import StarContainer from "../../components/star-container/page";
 import { getFullCard } from "@/lib/item-routes";
@@ -40,13 +41,14 @@ export default async function ItemCardPage({ params }: PageProps) {
     const session = await auth.api.getSession({ headers: await headers() });
     if (fullCardData){
         return (
-            <div className="w-[600px] flex flex-col gap-6 mt-10">
+            <>
+            <div className="w-full max-w-[600px] px-4 md:px-0 flex flex-col gap-6 my-10">
                 <Card className="w-full">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle>{fullCardData.title}<CardDescription className="mt-2">{fullCardData.gameTitle}</CardDescription></CardTitle>
                         <StarContainer rating={fullCardData.rating} className="w-24 h-8"></StarContainer>
                     </CardHeader>
-                    <div className="flex place-content-between">
+                    <div className="flex flex-col md:flex-row place-content-between">
                         <Separator orientation="vertical" className="ml-8">
                             <div className="type-attack ml-5">
                                 <CardDescription className="w-50">
@@ -89,14 +91,14 @@ export default async function ItemCardPage({ params }: PageProps) {
                                 </div>
                             </div>
                         </Separator>
-                        <Image className="flex-end mr-10"
+                        <Image className="flex-end md:mr-10 self-center mt-6 md:mt-0"
                         src={fullCardData.imgUrl}
                         alt={fullCardData.title}
                         width={128}
                         height={128}>
                         </Image>
                     </div>
-                    <div className="w-[500px] attr-container grid grid-cols-2 ml-8">
+                    <div className="md:w-[500px] attr-container grid grid-cols-1 md:grid-cols-2 ml-8 mr-8 md:mr-0">
                         <div className="attr-scaling">
                             <CardDescription className="flex">
                                 <Image
@@ -122,7 +124,7 @@ export default async function ItemCardPage({ params }: PageProps) {
                                 </div>
                             </Separator>
                         </div>
-                        <div className="attr-required ml-[100px]">
+                        <div className="attr-required mt-8 md:mt-0 md:ml-[100px]">
                             <CardDescription className="flex">
                                 <Image
                                 className="mr-5 -ml-2"
@@ -147,7 +149,7 @@ export default async function ItemCardPage({ params }: PageProps) {
                                 </div>
                             </Separator>
                         </div>
-                        <div className="passive-effects mt-[50px]">
+                        <div className="passive-effects mt-8 md:mt-[50px]">
                         <CardDescription className="flex">
                             <Image
                             className="mr-5 -ml-1.5"
@@ -185,6 +187,8 @@ export default async function ItemCardPage({ params }: PageProps) {
                     <ReviewList itemId={fullCardData.id} />
                 </Suspense>
             </div>
+            <Toaster />
+            </>
         )
     }
 

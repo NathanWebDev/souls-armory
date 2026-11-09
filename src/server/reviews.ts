@@ -42,6 +42,7 @@ export const getReviews = async (itemId: string) => {
             title: review.title,
             body: review.body,
             createdAt: review.createdAt,
+            isOwner: sql<boolean>`${review.userId} = ${viewerId}`,
             authorName: user.name,
             authorImage: user.image,
             upvotes: sql<number>`(select count(*) from ${reviewVote} where ${reviewVote.reviewId} = ${review.id} and ${reviewVote.value} = 1)`.mapWith(Number),
@@ -54,13 +55,7 @@ export const getReviews = async (itemId: string) => {
         .orderBy(desc(review.createdAt))
 }
 
-export const addReview = async (input: { itemId: string; rating: number; title: string; body: string }) => {
-    const session = await auth.api.getSession({ headers: await headers() })
-
-    if (!session) {
-        return { success: false as const, message: "You must be signed in to leave a review." }
-    }
-
+const checkReviewContent = (input: { rating: number; title: string; body: string }) => {
     const title = input.title.trim()
     const body = input.body.trim()
 
@@ -75,6 +70,24 @@ export const addReview = async (input: { itemId: string; rating: number; title: 
     if (!body || body.length > bodyMaxLength.maxLengthValue) {
         return { success: false as const, message: bodyMaxLength.errorMessage }
     }
+
+    return { success: true as const, title, body }
+}
+
+export const addReview =async (input: { itemId: string; rating: number; title: string; body: string }) => {
+    const session = await auth.api.getSession({ headers: await headers() })
+
+    if (!session) {
+        return { success: false as const, message: "You must be signed in to leave a review." }
+    }
+
+    const checked = checkReviewContent(input)
+
+    if (!checked.success) {
+        return checked
+    }
+
+    const { title, body } = checked
 
     try {
         const existing = await db
@@ -104,7 +117,68 @@ export const addReview = async (input: { itemId: string; rating: number; title: 
     }
 }
 
-export const voteReview = async (reviewId: string, value: 1 | -1) => {
+export const updateReview = async (input: { id: string; rating: number; title: string; body: string }) => {
+    const session = await auth.api.getSession({ headers: await headers() })
+
+    if (!session) {
+        return { success: false as const, message: "You must be signed in to edit a review." }
+    }
+
+    const checked = checkReviewContent(input)
+
+    if (!checked.success) {
+        return checked
+    }
+
+    try {
+        const [updated] = await db
+            .update(review)
+            .set({ rating: input.rating, title: checked.title, body: checked.body })
+            .where(and(eq(review.id, input.id), eq(review.userId, session.user.id)))
+            .returning({ itemId: review.itemId })
+
+        if (!updated) {
+            return { success: false as const, message: "You can only edit your own reviews." }
+        }
+
+        await recomputeRating(updated.itemId)
+
+        return { success: true as const }
+    } catch (error) {
+        const errorMessage = error as Error
+
+        return { success: false as const, message: errorMessage.message || "Could not update your review." }
+    }
+}
+
+export const deleteReview =async (reviewId: string) => {
+    const session = await auth.api.getSession({ headers: await headers() })
+
+    if (!session) {
+        return { success: false as const, message: "You must be signed in to delete a review." }
+    }
+
+    try {
+        const [deleted] = await db
+            .delete(review)
+            .where(and(eq(review.id, reviewId), eq(review.userId, session.user.id)))
+            .returning({ itemId: review.itemId })
+
+        if (!deleted) {
+            return { success: false as const, message: "You can only delete your own reviews." }
+        }
+
+        await recomputeRating(deleted.itemId)
+
+        return { success: true as const }
+    } catch (error) {
+        const errorMessage = error as Error
+
+        return { success: false as const, message: errorMessage.message || "Could not delete your review." }
+    }
+}
+
+export const voteReview =async (reviewId: string, value: 1 | -1) => {
     const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session) {

@@ -13,7 +13,17 @@ import { formRules } from "@/app/components/form-rules"
 import { addReview } from "@/server/reviews"
 import { cn } from "@/lib/utils"
 import { Button } from "@/shad-components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shad-components/ui/card"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/shad-components/ui/card"
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/shad-components/ui/dialog"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shad-components/ui/form"
 import { Input } from "@/shad-components/ui/input"
 import { Textarea } from "@/shad-components/ui/textarea"
@@ -55,6 +65,7 @@ function StarInput({ value, onChange }: { value: number; onChange: (value: numbe
 
 export default function ReviewForm({ itemId, signedIn }: { itemId: string; signedIn: boolean }) {
     const router = useRouter()
+    const [open, setOpen] = useState(false)
 
     const form = useForm<z.infer<typeof reviewFormSchema>>({
         resolver: zodResolver(reviewFormSchema),
@@ -71,6 +82,7 @@ export default function ReviewForm({ itemId, signedIn }: { itemId: string; signe
 
         toast.success("Review posted")
         form.reset()
+        setOpen(false)
         router.refresh()
     }
 
@@ -88,11 +100,15 @@ export default function ReviewForm({ itemId, signedIn }: { itemId: string; signe
     }
 
     return (
-        <Card className="w-full">
-            <CardHeader>
-                <CardTitle>Write a review</CardTitle>
-            </CardHeader>
-            <CardContent>
+        <Dialog open={open} onOpenChange={(next) => { setOpen(next); if (!next) form.reset() }}>
+            <DialogTrigger asChild>
+                <Button className="w-full md:w-fit">Write a Review</Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Write a review</DialogTitle>
+                    <DialogDescription className="sr-only">Rate this weapon and share your thoughts.</DialogDescription>
+                </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6">
                         <FormField
@@ -132,12 +148,17 @@ export default function ReviewForm({ itemId, signedIn }: { itemId: string; signe
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                            Post review
-                        </Button>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button type="button" variant="outline">Cancel</Button>
+                            </DialogClose>
+                            <Button type="submit" disabled={form.formState.isSubmitting}>
+                                Post review
+                            </Button>
+                        </DialogFooter>
                     </form>
                 </Form>
-            </CardContent>
-        </Card>
+            </DialogContent>
+        </Dialog>
     )
 }
