@@ -44,7 +44,8 @@ export const getReviews = async (itemId: string) => {
             createdAt: review.createdAt,
             authorName: user.name,
             authorImage: user.image,
-            score: sql<number>`coalesce((select sum(${reviewVote.value}) from ${reviewVote} where ${reviewVote.reviewId} = ${review.id}), 0)`.mapWith(Number),
+            upvotes: sql<number>`(select count(*) from ${reviewVote} where ${reviewVote.reviewId} = ${review.id} and ${reviewVote.value} = 1)`.mapWith(Number),
+            downvotes: sql<number>`(select count(*) from ${reviewVote} where ${reviewVote.reviewId} = ${review.id} and ${reviewVote.value} = -1)`.mapWith(Number),
             viewerVote: sql<number>`coalesce((select ${reviewVote.value} from ${reviewVote} where ${reviewVote.reviewId} = ${review.id} and ${reviewVote.userId} = ${viewerId}), 0)`.mapWith(Number),
         })
         .from(review)
