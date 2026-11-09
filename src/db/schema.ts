@@ -6,7 +6,9 @@ import {
   integer,
   bigint,
   char,
-  doublePrecision
+  doublePrecision,
+  primaryKey,
+  unique,
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
@@ -84,6 +86,7 @@ export const item = pgTable("item", {
   imgUrl: text("imgUrl").notNull(),
   type: text("type").notNull(),
   rating: doublePrecision("rating").notNull(),
+  seedRating: doublePrecision("seed_rating"),
   weaponArt: text("weaponArt"),
   fpCost: integer("fpCost").array(),
   weight: doublePrecision("weight").notNull(),
@@ -93,4 +96,36 @@ export const item = pgTable("item", {
   description: text("description").notNull()
 })
 
-export const schema = { user, session, account, verification, item };
+export const review = pgTable(
+  "review",
+  {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    itemId: text("item_id")
+      .notNull()
+      .references(() => item.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    rating: integer("rating").notNull(),
+    title: text("title").notNull(),
+    body: text("body").notNull(),
+    createdAt: timestamp("created_at").$defaultFn(() => new Date()).notNull(),
+  },
+  (t) => [unique().on(t.itemId, t.userId)],
+);
+
+export const reviewVote = pgTable(
+  "review_vote",
+  {
+    reviewId: text("review_id")
+      .notNull()
+      .references(() => review.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    value: integer("value").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.reviewId, t.userId] })],
+);
+
+export const schema = { user, session, account, verification, item, review, reviewVote };
