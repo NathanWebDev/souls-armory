@@ -2,14 +2,15 @@
 
 import { useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { ThumbsDown, ThumbsUp } from "lucide-react"
+import { Ellipsis, ThumbsDown, ThumbsUp } from "lucide-react"
 import { toast } from "sonner"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/shad-components/ui/avatar"
 import { Button } from "@/shad-components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shad-components/ui/card"
 import StarContainer from "@/app/components/star-container/page"
-import { voteReview } from "@/server/reviews"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/shad-components/ui/dropdown-menu"
+import { deleteReview, voteReview } from "@/server/reviews"
 import { cn, getInitials } from "@/lib/utils"
 
 export interface ReviewData {
@@ -18,6 +19,7 @@ export interface ReviewData {
     title: string
     body: string
     createdAt: Date
+    isOwner: boolean
     authorName: string
     authorImage: string | null
     upvotes: number
@@ -41,6 +43,19 @@ export default function ReviewCard({ review }: { review: ReviewData }) {
             router.refresh()
         })
 
+    const remove = () =>
+        startTransition(async () => {
+            const result = await deleteReview(review.id)
+
+            if (!result.success) {
+                toast.error(result.message)
+                return
+            }
+
+            toast.success("Review deleted")
+            router.refresh()
+        })
+
     return (
         <Card className="w-full">
             <CardHeader className="flex flex-row items-center justify-between">
@@ -54,7 +69,27 @@ export default function ReviewCard({ review }: { review: ReviewData }) {
                         <CardDescription>{review.createdAt.toLocaleDateString()}</CardDescription>
                     </div>
                 </div>
-                <StarContainer rating={review.rating} className="w-24 h-8" />
+                <div className="flex items-center gap-2">
+                    <StarContainer rating={review.rating} className="w-24 h-8" />
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" aria-label="Review options">
+                                <Ellipsis />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            {review.isOwner ? (
+                                <DropdownMenuItem variant="destructive" disabled={pending} onSelect={remove}>
+                                    Delete Review
+                                </DropdownMenuItem>
+                            ) : (
+                                <DropdownMenuItem onSelect={() => toast.success("Thanks, we'll look into this user.")}>
+                                    Report User
+                                </DropdownMenuItem>
+                            )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
                 <CardTitle>{review.title}</CardTitle>
