@@ -9,7 +9,9 @@ import {
   doublePrecision,
   primaryKey,
   unique,
+  check,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -111,7 +113,10 @@ export const review = pgTable(
     body: text("body").notNull(),
     createdAt: timestamp("created_at").$defaultFn(() => new Date()).notNull(),
   },
-  (t) => [unique().on(t.itemId, t.userId)],
+  (t) => [
+    unique().on(t.itemId, t.userId),
+    check("review_rating_range", sql`${t.rating} between 1 and 5`),
+  ],
 );
 
 export const reviewVote = pgTable(
@@ -125,7 +130,10 @@ export const reviewVote = pgTable(
       .references(() => user.id, { onDelete: "cascade" }),
     value: integer("value").notNull(),
   },
-  (t) => [primaryKey({ columns: [t.reviewId, t.userId] })],
+  (t) => [
+    primaryKey({ columns: [t.reviewId, t.userId] }),
+    check("review_vote_value", sql`${t.value} in (1, -1)`),
+  ],
 );
 
 export const schema = { user, session, account, verification, item, review, reviewVote };
