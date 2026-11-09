@@ -124,7 +124,7 @@ export default async function ItemCardPage({ params }: PageProps) {
                                 </div>
                             </Separator>
                         </div>
-                        <div className="attr-required mt-8 md:mt-0 md:ml-[100px]">
+                        <div className="attr-required mt-12 md:mt-0 md:ml-[100px]">
                             <CardDescription className="flex">
                                 <Image
                                 className="mr-5 -ml-2"
@@ -149,7 +149,7 @@ export default async function ItemCardPage({ params }: PageProps) {
                                 </div>
                             </Separator>
                         </div>
-                        <div className="passive-effects mt-8 md:mt-[50px]">
+                        <div className="passive-effects mt-12 md:mt-[50px]">
                         <CardDescription className="flex">
                             <Image
                             className="mr-5 -ml-1.5"

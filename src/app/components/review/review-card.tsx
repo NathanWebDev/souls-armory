@@ -1,6 +1,6 @@
 "use client"
 
-import { useTransition } from "react"
+import { useRef, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Ellipsis, ThumbsDown, ThumbsUp } from "lucide-react"
 import { toast } from "sonner"
@@ -10,6 +10,7 @@ import { Button } from "@/shad-components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shad-components/ui/card"
 import StarContainer from "@/app/components/star-container/page"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/shad-components/ui/dropdown-menu"
+import { ReviewDialog } from "@/app/components/review/review-form"
 import { deleteReview, voteReview } from "@/server/reviews"
 import { cn, getInitials } from "@/lib/utils"
 
@@ -30,6 +31,8 @@ export interface ReviewData {
 export default function ReviewCard({ review }: { review: ReviewData }) {
     const router = useRouter()
     const [pending, startTransition] = useTransition()
+    const [editOpen, setEditOpen] = useState(false)
+    const menuTrigger = useRef<HTMLButtonElement>(null)
 
     const vote = (value: 1 | -1) =>
         startTransition(async () => {
@@ -57,8 +60,8 @@ export default function ReviewCard({ review }: { review: ReviewData }) {
         })
 
     return (
-        <Card className="w-full">
-            <CardHeader className="flex flex-row items-center justify-between">
+        <Card className="relative w-full">
+            <CardHeader className="flex flex-col items-start gap-4 md:flex-row md:items-center justify-between">
                 <div className="flex items-center gap-4">
                     <Avatar className="size-12">
                         <AvatarImage src={review.authorImage ?? undefined} alt={review.authorName} />
@@ -73,17 +76,28 @@ export default function ReviewCard({ review }: { review: ReviewData }) {
                     <StarContainer rating={review.rating} className="w-24 h-8" />
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" aria-label="Review options">
+                            <Button ref={menuTrigger} variant="ghost" size="icon" aria-label="Review options" className="absolute top-4 right-4 md:static">
                                 <Ellipsis />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent
+                            align="end"
+                            onCloseAutoFocus={(event) => {
+                                event.preventDefault()
+                                menuTrigger.current?.focus({ preventScroll: true })
+                            }}
+                        >
                             {review.isOwner ? (
-                                <DropdownMenuItem variant="destructive" disabled={pending} onSelect={remove}>
-                                    Delete Review
-                                </DropdownMenuItem>
+                                <>
+                                    <DropdownMenuItem className="cursor-pointer" onSelect={() => setEditOpen(true)}>
+                                        Edit Review
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="cursor-pointer" variant="destructive" disabled={pending} onSelect={remove}>
+                                        Delete Review
+                                    </DropdownMenuItem>
+                                </>
                             ) : (
-                                <DropdownMenuItem onSelect={() => toast.success("Thanks, we'll look into this user.")}>
+                                <DropdownMenuItem className="cursor-pointer" onSelect={() => toast.success("Thanks, we'll look into this user.")}>
                                     Report User
                                 </DropdownMenuItem>
                             )}
@@ -119,6 +133,9 @@ export default function ReviewCard({ review }: { review: ReviewData }) {
                 </Button>
                 <span className="min-w-6 -translate-x-3 text-center text-sm">{review.downvotes}</span>
             </CardFooter>
+            {review.isOwner && (
+                <ReviewDialog review={review} open={editOpen} onOpenChange={setEditOpen} />
+            )}
         </Card>
     )
 }

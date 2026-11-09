@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -10,7 +10,7 @@ import { toast } from "sonner"
 import { z } from "zod"
 
 import { formRules } from "@/app/components/form-rules"
-import { addReview } from "@/server/reviews"
+import { addReview, updateReview } from "@/server/reviews"
 import { cn } from "@/lib/utils"
 import { Button } from "@/shad-components/ui/button"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/shad-components/ui/card"
@@ -63,50 +63,50 @@ function StarInput({ value, onChange }: { value: number; onChange: (value: numbe
     )
 }
 
-export default function ReviewForm({ itemId, signedIn }: { itemId: string; signedIn: boolean }) {
+interface ReviewDialogProps {
+    itemId?: string
+    review?: { id: string; rating: number; title: string; body: string }
+    open: boolean
+    onOpenChange: (open: boolean) => void
+    children?: ReactNode
+}
+
+export function ReviewDialog({ itemId, review, open, onOpenChange, children }: ReviewDialogProps) {
     const router = useRouter()
-    const [open, setOpen] = useState(false)
+    const editing = !!review
 
     const form = useForm<z.infer<typeof reviewFormSchema>>({
         resolver: zodResolver(reviewFormSchema),
         defaultValues: { rating: 0, title: "", body: "" },
     })
 
+    useEffect(() => {
+        if (open) {
+            form.reset({ rating: review?.rating ?? 0, title: review?.title ?? "", body: review?.body ?? "" })
+        }
+    }, [open, review, form])
+
     async function onSubmit(values: z.infer<typeof reviewFormSchema>) {
-        const result = await addReview({ itemId, ...values })
+        const result = review
+            ? await updateReview({ id: review.id, ...values })
+            : await addReview({ itemId: itemId ?? "", ...values })
 
         if (!result.success) {
             toast.error(result.message)
             return
         }
 
-        toast.success("Review posted")
-        form.reset()
-        setOpen(false)
+        toast.success(editing ? "Review updated" : "Review posted")
+        onOpenChange(false)
         router.refresh()
     }
 
-    if (!signedIn) {
-        return (
-            <Card className="w-full">
-                <CardHeader>
-                    <CardTitle>Write a review</CardTitle>
-                    <CardDescription>
-                        <Link href="/user/login" className="underline">Sign in</Link> to review this weapon.
-                    </CardDescription>
-                </CardHeader>
-            </Card>
-        )
-    }
-
     return (
-        <Dialog open={open} onOpenChange={(next) => { setOpen(next); if (!next) form.reset() }}>
-            <DialogTrigger asChild>
-                <Button className="w-full md:w-fit">Write a Review</Button>
-            </DialogTrigger>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            {children && <DialogTrigger asChild>{children}</DialogTrigger>}
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Write a review</DialogTitle>
+                    <DialogTitle>{editing ? "Edit your review" : "Write a review"}</DialogTitle>
                     <DialogDescription className="sr-only">Rate this weapon and share your thoughts.</DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
@@ -153,12 +153,35 @@ export default function ReviewForm({ itemId, signedIn }: { itemId: string; signe
                                 <Button type="button" variant="outline">Cancel</Button>
                             </DialogClose>
                             <Button type="submit" disabled={form.formState.isSubmitting}>
-                                Post review
+                                {editing ? "Save changes" : "Post review"}
                             </Button>
                         </DialogFooter>
                     </form>
                 </Form>
             </DialogContent>
         </Dialog>
+    )
+}
+
+export default function ReviewForm({ itemId, signedIn }: { itemId: string; signedIn: boolean }) {
+    const [open, setOpen] = useState(false)
+
+    if (!signedIn) {
+        return (
+            <Card className="w-full">
+                <CardHeader>
+                    <CardTitle>Write a review</CardTitle>
+                    <CardDescription>
+                        <Link href="/user/login" className="underline">Sign in</Link> to review this weapon.
+                    </CardDescription>
+                </CardHeader>
+            </Card>
+        )
+    }
+
+    return (
+        <ReviewDialog itemId={itemId} open={open} onOpenChange={setOpen}>
+            <Button className="w-full md:w-fit">Write a Review</Button>
+        </ReviewDialog>
     )
 }
