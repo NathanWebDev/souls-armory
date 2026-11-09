@@ -1,119 +1,90 @@
 "use server";
 
 import { headers } from "next/headers";
-import { and, count, desc, eq, sql, sum } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
+import { z } from "zod";
 
 import { auth } from "@/lib/auth";
 import { db } from "@/db/drizzle";
-import { item, review, reviewVote, user } from "@/db/schema";
-import { bayesianRating } from "@/lib/rating";
+import { item, review, reviewVote } from "@/db/schema";
+import { SEED_WEIGHT } from "@/lib/rating";
 import { formRules } from "@/app/components/form-rules";
 
 const { titleMaxLength, bodyMaxLength } = formRules.reviewRules
 
-const recomputeRating = async (itemId: string) => {
-    const [row] = await db
-        .select({ seed: sql<number>`coalesce(${item.seedRating}, ${item.rating})` })
-        .from(item)
-        .where(eq(item.id, itemId))
+const contentSchema = z.object({
+    rating: z.number({ message: "Please choose a rating from 1 to 5 stars." })
+        .int({ message: "Please choose a rating from 1 to 5 stars." })
+        .min(1, { message: "Please choose a rating from 1 to 5 stars." })
+        .max(5, { message: "Please choose a rating from 1 to 5 stars." }),
+    title: z.string({ message: "Please enter a title" }).trim()
+        .min(1, { message: "Please enter a title" })
+        .max(titleMaxLength.maxLengthValue, { message: titleMaxLength.errorMessage }),
+    body: z.string({ message: "Please write a review" }).trim()
+        .min(1, { message: "Please write a review" })
+        .max(bodyMaxLength.maxLengthValue, { message: bodyMaxLength.errorMessage }),
+})
 
-    const [totals] = await db
-        .select({ total: sum(review.rating), reviews: count() })
-        .from(review)
-        .where(eq(review.itemId, itemId))
+const idSchema = z.string().min(1)
 
-    await db
-        .update(item)
-        .set({
-            seedRating: row.seed,
-            rating: bayesianRating(row.seed, Number(totals.total ?? 0), totals.reviews),
-        })
-        .where(eq(item.id, itemId))
+const addSchema = contentSchema.extend({ itemId: idSchema })
+const updateSchema = contentSchema.extend({ id: idSchema })
+const voteSchema = z.object({ reviewId: idSchema, value: z.union([z.literal(1), z.literal(-1)]) })
+
+const invalid = (error: z.ZodError) => ({ success: false as const, message: error.issues[0]?.message ?? "Invalid input." })
+
+const failed = (message: string, error: unknown) => {
+    console.error(message, error)
+
+    return { success: false as const, message }
 }
 
-export const getReviews = async (itemId: string) => {
-    const session = await auth.api.getSession({ headers: await headers() })
-    const viewerId = session?.user.id ?? ""
+const recomputeRating = (itemId: string) => {
+    const seed = sql`coalesce(${item.seedRating}, ${item.rating})`
+    const weight = sql.raw(String(SEED_WEIGHT))
+    const total = sql`coalesce((select sum(${review.rating}) from ${review} where ${review.itemId} = ${item.id}), 0)`
+    const reviews = sql`(select count(*) from ${review} where ${review.itemId} = ${item.id})`
 
     return db
-        .select({
-            id: review.id,
-            rating: review.rating,
-            title: review.title,
-            body: review.body,
-            createdAt: review.createdAt,
-            isOwner: sql<boolean>`${review.userId} = ${viewerId}`,
-            authorName: user.name,
-            authorImage: user.image,
-            upvotes: sql<number>`(select count(*) from ${reviewVote} where ${reviewVote.reviewId} = ${review.id} and ${reviewVote.value} = 1)`.mapWith(Number),
-            downvotes: sql<number>`(select count(*) from ${reviewVote} where ${reviewVote.reviewId} = ${review.id} and ${reviewVote.value} = -1)`.mapWith(Number),
-            viewerVote: sql<number>`coalesce((select ${reviewVote.value} from ${reviewVote} where ${reviewVote.reviewId} = ${review.id} and ${reviewVote.userId} = ${viewerId}), 0)`.mapWith(Number),
+        .update(item)
+        .set({
+            seedRating: seed,
+            rating: sql`(${seed} * ${weight} + ${total}) / (${weight} + ${reviews})`,
         })
-        .from(review)
-        .innerJoin(user, eq(review.userId, user.id))
-        .where(eq(review.itemId, itemId))
-        .orderBy(desc(review.createdAt))
+        .where(eq(item.id, itemId))
 }
 
-const checkReviewContent = (input: { rating: number; title: string; body: string }) => {
-    const title = input.title.trim()
-    const body = input.body.trim()
-
-    if (!Number.isInteger(input.rating) || input.rating < 1 || input.rating > 5) {
-        return { success: false as const, message: "Please choose a rating from 1 to 5 stars." }
-    }
-
-    if (!title || title.length > titleMaxLength.maxLengthValue) {
-        return { success: false as const, message: titleMaxLength.errorMessage }
-    }
-
-    if (!body || body.length > bodyMaxLength.maxLengthValue) {
-        return { success: false as const, message: bodyMaxLength.errorMessage }
-    }
-
-    return { success: true as const, title, body }
-}
-
-export const addReview =async (input: { itemId: string; rating: number; title: string; body: string }) => {
+export const addReview = async (input: { itemId: string; rating: number; title: string; body: string }) => {
     const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session) {
         return { success: false as const, message: "You must be signed in to leave a review." }
     }
 
-    const checked = checkReviewContent(input)
+    const parsed = addSchema.safeParse(input)
 
-    if (!checked.success) {
-        return checked
+    if (!parsed.success) {
+        return invalid(parsed.error)
     }
 
-    const { title, body } = checked
+    const { itemId, rating, title, body } = parsed.data
 
     try {
         const existing = await db
             .select({ id: review.id })
             .from(review)
-            .where(and(eq(review.itemId, input.itemId), eq(review.userId, session.user.id)))
+            .where(and(eq(review.itemId, itemId), eq(review.userId, session.user.id)))
 
         if (existing.length) {
             return { success: false as const, message: "You have already reviewed this weapon." }
         }
 
-        await db.insert(review).values({
-            itemId: input.itemId,
-            userId: session.user.id,
-            rating: input.rating,
-            title,
-            body,
-        })
-
-        await recomputeRating(input.itemId)
+        await db.insert(review).values({ itemId, userId: session.user.id, rating, title, body })
+        await recomputeRating(itemId)
 
         return { success: true as const }
     } catch (error) {
-        const errorMessage = error as Error
-
-        return { success: false as const, message: errorMessage.message || "Could not save your review." }
+        return failed("Could not save your review.", error)
     }
 }
 
@@ -124,17 +95,19 @@ export const updateReview = async (input: { id: string; rating: number; title: s
         return { success: false as const, message: "You must be signed in to edit a review." }
     }
 
-    const checked = checkReviewContent(input)
+    const parsed = updateSchema.safeParse(input)
 
-    if (!checked.success) {
-        return checked
+    if (!parsed.success) {
+        return invalid(parsed.error)
     }
+
+    const { id, rating, title, body } = parsed.data
 
     try {
         const [updated] = await db
             .update(review)
-            .set({ rating: input.rating, title: checked.title, body: checked.body })
-            .where(and(eq(review.id, input.id), eq(review.userId, session.user.id)))
+            .set({ rating, title, body })
+            .where(and(eq(review.id, id), eq(review.userId, session.user.id)))
             .returning({ itemId: review.itemId })
 
         if (!updated) {
@@ -145,23 +118,27 @@ export const updateReview = async (input: { id: string; rating: number; title: s
 
         return { success: true as const }
     } catch (error) {
-        const errorMessage = error as Error
-
-        return { success: false as const, message: errorMessage.message || "Could not update your review." }
+        return failed("Could not update your review.", error)
     }
 }
 
-export const deleteReview =async (reviewId: string) => {
+export const deleteReview = async (reviewId: string) => {
     const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session) {
         return { success: false as const, message: "You must be signed in to delete a review." }
     }
 
+    const parsed = idSchema.safeParse(reviewId)
+
+    if (!parsed.success) {
+        return { success: false as const, message: "Invalid review." }
+    }
+
     try {
         const [deleted] = await db
             .delete(review)
-            .where(and(eq(review.id, reviewId), eq(review.userId, session.user.id)))
+            .where(and(eq(review.id, parsed.data), eq(review.userId, session.user.id)))
             .returning({ itemId: review.itemId })
 
         if (!deleted) {
@@ -172,20 +149,20 @@ export const deleteReview =async (reviewId: string) => {
 
         return { success: true as const }
     } catch (error) {
-        const errorMessage = error as Error
-
-        return { success: false as const, message: errorMessage.message || "Could not delete your review." }
+        return failed("Could not delete your review.", error)
     }
 }
 
-export const voteReview =async (reviewId: string, value: 1 | -1) => {
+export const voteReview = async (reviewId: string, value: 1 | -1) => {
     const session = await auth.api.getSession({ headers: await headers() })
 
     if (!session) {
         return { success: false as const, message: "You must be signed in to vote." }
     }
 
-    if (value !== 1 && value !== -1) {
+    const parsed = voteSchema.safeParse({ reviewId, value })
+
+    if (!parsed.success) {
         return { success: false as const, message: "Invalid vote." }
     }
 
@@ -193,23 +170,21 @@ export const voteReview =async (reviewId: string, value: 1 | -1) => {
         const [existing] = await db
             .select({ value: reviewVote.value })
             .from(reviewVote)
-            .where(and(eq(reviewVote.reviewId, reviewId), eq(reviewVote.userId, session.user.id)))
+            .where(and(eq(reviewVote.reviewId, parsed.data.reviewId), eq(reviewVote.userId, session.user.id)))
 
-        if (existing?.value === value) {
+        if (existing?.value === parsed.data.value) {
             await db
                 .delete(reviewVote)
-                .where(and(eq(reviewVote.reviewId, reviewId), eq(reviewVote.userId, session.user.id)))
+                .where(and(eq(reviewVote.reviewId, parsed.data.reviewId), eq(reviewVote.userId, session.user.id)))
         } else {
             await db
                 .insert(reviewVote)
-                .values({ reviewId, userId: session.user.id, value })
-                .onConflictDoUpdate({ target: [reviewVote.reviewId, reviewVote.userId], set: { value } })
+                .values({ reviewId: parsed.data.reviewId, userId: session.user.id, value: parsed.data.value })
+                .onConflictDoUpdate({ target: [reviewVote.reviewId, reviewVote.userId], set: { value: parsed.data.value } })
         }
 
         return { success: true as const }
     } catch (error) {
-        const errorMessage = error as Error
-
-        return { success: false as const, message: errorMessage.message || "Could not save your vote." }
+        return failed("Could not save your vote.", error)
     }
 }

@@ -74,35 +74,29 @@ export default function ReviewCard({ review }: { review: ReviewData }) {
                 </div>
                 <div className="flex items-center gap-2">
                     <StarContainer rating={review.rating} className="w-24 h-8" />
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button ref={menuTrigger} variant="ghost" size="icon" aria-label="Review options" className="absolute top-4 right-4 md:static">
-                                <Ellipsis />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                            align="end"
-                            onCloseAutoFocus={(event) => {
-                                event.preventDefault()
-                                menuTrigger.current?.focus({ preventScroll: true })
-                            }}
-                        >
-                            {review.isOwner ? (
-                                <>
-                                    <DropdownMenuItem className="cursor-pointer" onSelect={() => setEditOpen(true)}>
-                                        Edit Review
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem className="cursor-pointer" variant="destructive" disabled={pending} onSelect={remove}>
-                                        Delete Review
-                                    </DropdownMenuItem>
-                                </>
-                            ) : (
-                                <DropdownMenuItem className="cursor-pointer" onSelect={() => toast.success("Thanks, we'll look into this user.")}>
-                                    Report User
+                    {review.isOwner && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button ref={menuTrigger} variant="ghost" size="icon" aria-label="Review options" className="absolute top-4 right-4 md:static">
+                                    <Ellipsis />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                                align="end"
+                                onCloseAutoFocus={(event) => {
+                                    event.preventDefault()
+                                    menuTrigger.current?.focus({ preventScroll: true })
+                                }}
+                            >
+                                <DropdownMenuItem className="cursor-pointer" onSelect={() => setEditOpen(true)}>
+                                    Edit Review
                                 </DropdownMenuItem>
-                            )}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                                <DropdownMenuItem className="cursor-pointer" variant="destructive" disabled={pending} onSelect={remove}>
+                                    Delete Review
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
                 </div>
             </CardHeader>
             <CardContent className="flex flex-col gap-2">

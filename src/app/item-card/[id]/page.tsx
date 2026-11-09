@@ -184,7 +184,7 @@ export default async function ItemCardPage({ params }: PageProps) {
                 </Card>
                 <ReviewForm itemId={fullCardData.id} signedIn={!!session} />
                 <Suspense fallback={<ReviewSkeleton />}>
-                    <ReviewList itemId={fullCardData.id} />
+                    <ReviewList itemId={fullCardData.id} viewerId={session?.user.id} />
                 </Suspense>
             </div>
             <Toaster />
