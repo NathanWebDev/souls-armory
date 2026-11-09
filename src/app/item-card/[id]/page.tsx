@@ -1,8 +1,13 @@
+import { Suspense } from "react";
+import { headers } from "next/headers";
 import Image from "next/image";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/shad-components/ui/card";
 import ItemNotFound from "@/app/components/item-not-found/page";
 import { Separator } from "@/shad-components/ui/separator";
-import { Skeleton } from "@/shad-components/ui/skeleton";
+import ReviewForm from "@/app/components/review/review-form";
+import ReviewList from "@/app/components/review/review-list";
+import ReviewSkeleton from "@/app/components/review/review-skeleton";
+import { auth } from "@/lib/auth";
 
 import StarContainer from "../../components/star-container/page";
 import { getFullCard } from "@/lib/item-routes";
@@ -32,6 +37,7 @@ const attributeLabels: string[] = ['Str', 'Dex', 'Int', 'Fai', 'Arc'];
 export default async function ItemCardPage({ params }: PageProps) {
     const { id } = await params;
     const fullCardData = await getFullCard(id);
+    const session = await auth.api.getSession({ headers: await headers() });
     if (fullCardData){
         return (
             <div className="w-[600px] flex flex-col gap-6 mt-10">
@@ -174,13 +180,10 @@ export default async function ItemCardPage({ params }: PageProps) {
                         </CardDescription>
                     </CardHeader>
                 </Card>
-                <div className="flex items-center gap-4">
-                    <Skeleton className="h-12 w-12 rounded-full" />
-                    <div className="space-y-2">
-                        <Skeleton className="h-4 w-[250px]" />
-                        <Skeleton className="h-4 w-[200px]" />
-                    </div>
-                </div>
+                <ReviewForm itemId={fullCardData.id} signedIn={!!session} />
+                <Suspense fallback={<ReviewSkeleton />}>
+                    <ReviewList itemId={fullCardData.id} />
+                </Suspense>
             </div>
         )
     }
