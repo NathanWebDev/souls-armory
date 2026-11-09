@@ -9,8 +9,8 @@ type NewItem = typeof schema.item.$inferInsert;
 async function upsertItem(values: NewItem) {
   await db
     .insert(schema.item)
-    .values(values)
-    .onConflictDoUpdate({ target: schema.item.id, set: values });
+    .values({ ...values, seedRating: values.rating })
+    .onConflictDoUpdate({ target: schema.item.id, set: { ...values, seedRating: values.rating } });
 }
 
 async function seed() {
