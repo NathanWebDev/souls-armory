@@ -17,6 +17,17 @@ export const formRules = {
         }
     },
 
+    reviewRules: {
+        titleMaxLength: {
+            maxLengthValue: 100,
+            errorMessage: "Title must be 100 characters or fewer"
+        },
+        bodyMaxLength: {
+            maxLengthValue: 1000,
+            errorMessage: "Review must be 1000 characters or fewer"
+        }
+    },
+
     emailRules: {
         minLength: {
             minLengthValue: 2,
