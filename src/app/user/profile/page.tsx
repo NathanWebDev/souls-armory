@@ -2,6 +2,8 @@ import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
 import { auth } from "@/lib/auth"
+import { getUserReviews } from "@/lib/review-routes"
+import { MyReviewsCard } from "@/shad-components/my-reviews-card"
 import { ProfileForm } from "@/shad-components/profile-form"
 
 export default async function Profile() {
@@ -11,17 +13,19 @@ export default async function Profile() {
         redirect("/user/login")
     }
 
-    const { name, email, image, description } = session.user
+    const { id, name, email, image, description } = session.user
+    const reviews = await getUserReviews(id)
 
     return (
         <div className="flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
-            <div className="w-full max-w-sm md:max-w-xl">
+            <div className="flex w-full max-w-sm flex-col gap-6 md:max-w-xl">
                 <ProfileForm
                     name={name}
                     email={email}
                     image={image ?? null}
                     description={description ?? ""}
                 />
+                <MyReviewsCard reviews={reviews} />
             </div>
         </div>
     )
