@@ -8,6 +8,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/db/drizzle";
 import { item, review, reviewVote } from "@/db/schema";
 import { SEED_WEIGHT } from "@/lib/rating";
+import { hasReviewed } from "@/lib/review-routes";
 import { formRules } from "@/app/components/form-rules";
 
 const { titleMaxLength, bodyMaxLength } = formRules.reviewRules
@@ -31,14 +32,6 @@ const addSchema = contentSchema.extend({ itemId: idSchema })
 const updateSchema = contentSchema.extend({ id: idSchema })
 const voteSchema = z.object({ reviewId: idSchema, value: z.union([z.literal(1), z.literal(-1)]) })
 
-const invalid = (error: z.ZodError) => ({ success: false as const, message: error.issues[0]?.message ?? "Invalid input." })
-
-const failed = (message: string, error: unknown) => {
-    console.error(message, error)
-
-    return { success: false as const, message }
-}
-
 const recomputeRating = (itemId: string) => {
     const seed = sql`coalesce(${item.seedRating}, ${item.rating})`
     const weight = sql.raw(String(SEED_WEIGHT))
@@ -52,6 +45,14 @@ const recomputeRating = (itemId: string) => {
             rating: sql`(${seed} * ${weight} + ${total}) / (${weight} + ${reviews})`,
         })
         .where(eq(item.id, itemId))
+}
+
+const invalid = (error: z.ZodError) => ({ success: false as const, message: error.issues[0]?.message ?? "Invalid input." })
+
+const failed = (message: string, error: unknown) => {
+    console.error(message, error)
+
+    return { success: false as const, message }
 }
 
 export const addReview = async (input: { itemId: string; rating: number; title: string; body: string }) => {
@@ -70,12 +71,7 @@ export const addReview = async (input: { itemId: string; rating: number; title: 
     const { itemId, rating, title, body } = parsed.data
 
     try {
-        const existing = await db
-            .select({ id: review.id })
-            .from(review)
-            .where(and(eq(review.itemId, itemId), eq(review.userId, session.user.id)))
-
-        if (existing.length) {
+        if (await hasReviewed(itemId, session.user.id)) {
             return { success: false as const, message: "You have already reviewed this weapon." }
         }
 
