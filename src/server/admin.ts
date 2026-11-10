@@ -65,7 +65,8 @@ export const deleteReportedReview = async (reviewId: string) => {
     const { target } = loaded
 
     try {
-        await db.delete(review).where(eq(review.id, reviewId))        await recomputeRating(target.itemId)
+        await db.delete(review).where(eq(review.id, reviewId))
+        await recomputeRating(target.itemId)
 
         return { success: true as const, message: `Deleted the review "${target.title}" by ${target.authorName}.` }
     } catch (error) {
