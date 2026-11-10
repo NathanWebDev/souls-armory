@@ -6,7 +6,7 @@ import { z } from "zod";
 
 import { auth } from "@/lib/auth";
 import { db } from "@/db/drizzle";
-import { item, review, reviewVote } from "@/db/schema";
+import { item, review, reviewReport, reviewVote } from "@/db/schema";
 import { SEED_WEIGHT } from "@/lib/rating";
 import { hasReviewed } from "@/lib/review-routes";
 import { formRules } from "@/app/components/form-rules";
@@ -27,6 +27,14 @@ const contentSchema = z.object({
 })
 
 const idSchema = z.string().min(1)
+
+const { reasons, detailsMaxLength } = formRules.reportRules
+
+const reportSchema = z.object({
+    reviewId: idSchema,
+    reason: z.enum(Object.keys(reasons) as [keyof typeof reasons, ...(keyof typeof reasons)[]], { message: "Please choose a reason." }),
+    details: z.string().trim().max(detailsMaxLength.maxLengthValue, { message: detailsMaxLength.errorMessage }).optional(),
+}).refine((r) => r.reason !== "other" || !!r.details, { message: "Please describe the problem.", path: ["details"] })
 
 const addSchema = contentSchema.extend({ itemId: idSchema })
 const updateSchema = contentSchema.extend({ id: idSchema })
@@ -146,6 +154,43 @@ export const deleteReview = async (reviewId: string) => {
         return { success: true as const }
     } catch (error) {
         return failed("Could not delete your review.", error)
+    }
+}
+
+export const reportReview = async (input: { reviewId: string; reason: string; details?: string }) => {
+    const session = await auth.api.getSession({ headers: await headers() })
+
+    if (!session) {
+        return { success: false as const, message: "You must be signed in to report a review." }
+    }
+
+    const parsed = reportSchema.safeParse(input)
+
+    if (!parsed.success) {
+        return invalid(parsed.error)
+    }
+
+    const { reviewId, reason, details } = parsed.data
+
+    try {
+        const [target] = await db.select({ userId: review.userId }).from(review).where(eq(review.id, reviewId))
+
+        if (!target) {
+            return { success: false as const, message: "That review no longer exists." }
+        }
+
+        if (target.userId === session.user.id) {
+            return { success: false as const, message: "You can't report your own review." }
+        }
+
+        await db
+            .insert(reviewReport)
+            .values({ reviewId, reporterId: session.user.id, reason, details: reason === "other" ? details : null })
+            .onConflictDoNothing()
+
+        return { success: true as const }
+    } catch (error) {
+        return failed("Could not submit your report.", error)
     }
 }
 

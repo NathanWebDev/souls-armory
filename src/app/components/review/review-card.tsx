@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import StarContainer from "@/app/components/star-container/page"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/shad-components/ui/dropdown-menu"
 import { ReviewDialog } from "@/app/components/review/review-form"
+import { ReportDialog } from "@/app/components/review/report-dialog"
 import { deleteReview, voteReview } from "@/server/reviews"
 import { cn, getInitials } from "@/lib/utils"
 
@@ -32,6 +33,7 @@ export default function ReviewCard({ review }: { review: ReviewData }) {
     const router = useRouter()
     const [pending, startTransition] = useTransition()
     const [editOpen, setEditOpen] = useState(false)
+    const [reportOpen, setReportOpen] = useState(false)
     const menuTrigger = useRef<HTMLButtonElement>(null)
 
     const vote = (value: 1 | -1) =>
@@ -74,29 +76,35 @@ export default function ReviewCard({ review }: { review: ReviewData }) {
                 </div>
                 <div className="flex items-center gap-2">
                     <StarContainer rating={review.rating} className="w-24 h-8" />
-                    {review.isOwner && (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button ref={menuTrigger} variant="ghost" size="icon" aria-label="Review options" className="absolute top-4 right-4 md:static">
-                                    <Ellipsis />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                                align="end"
-                                onCloseAutoFocus={(event) => {
-                                    event.preventDefault()
-                                    menuTrigger.current?.focus({ preventScroll: true })
-                                }}
-                            >
-                                <DropdownMenuItem className="cursor-pointer" onSelect={() => setEditOpen(true)}>
-                                    Edit Review
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button ref={menuTrigger} variant="ghost" size="icon" aria-label="Review options" className="absolute top-4 right-4 md:static">
+                                <Ellipsis />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                            align="end"
+                            onCloseAutoFocus={(event) => {
+                                event.preventDefault()
+                                menuTrigger.current?.focus({ preventScroll: true })
+                            }}
+                        >
+                            {review.isOwner ? (
+                                <>
+                                    <DropdownMenuItem className="cursor-pointer" onSelect={() => setEditOpen(true)}>
+                                        Edit Review
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="cursor-pointer" variant="destructive" disabled={pending} onSelect={remove}>
+                                        Delete Review
+                                    </DropdownMenuItem>
+                                </>
+                            ) : (
+                                <DropdownMenuItem className="cursor-pointer" onSelect={() => setReportOpen(true)}>
+                                    Report User
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="cursor-pointer" variant="destructive" disabled={pending} onSelect={remove}>
-                                    Delete Review
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    )}
+                            )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
@@ -127,8 +135,10 @@ export default function ReviewCard({ review }: { review: ReviewData }) {
                 </Button>
                 <span className="min-w-6 -translate-x-3 text-center text-sm">{review.downvotes}</span>
             </CardFooter>
-            {review.isOwner && (
+            {review.isOwner ? (
                 <ReviewDialog review={review} open={editOpen} onOpenChange={setEditOpen} />
+            ) : (
+                <ReportDialog reviewId={review.id} open={reportOpen} onOpenChange={setReportOpen} />
             )}
         </Card>
     )
