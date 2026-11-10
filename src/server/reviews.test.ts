@@ -9,9 +9,10 @@ const update = vi.hoisted(() => vi.fn(() => ({ set: () => ({ where: () => Promis
 vi.mock("next/headers", () => ({ headers: async () => new Headers() }));
 vi.mock("@/lib/auth", () => ({ auth: { api: { getSession } } }));
 vi.mock("@/lib/review-routes", () => ({ hasReviewed }));
-vi.mock("@/db/drizzle", () => ({ db: { insert, update } }));
+const selected = vi.hoisted(() => vi.fn());
+vi.mock("@/db/drizzle", () => ({ db: { insert, update, select: () => ({ from: () => ({ where: selected }) }) } }));
 
-import { addReview } from "./reviews";
+import { addReview, reportReview } from "./reviews";
 
 const input = { itemId: "i1", rating: 5, title: "Great", body: "Loved it" };
 
@@ -43,5 +44,44 @@ describe("addReview", () => {
     await expect(addReview(input)).resolves.toEqual({ success: true });
     expect(values).toHaveBeenCalledWith({ ...input, userId: "u1" });
     expect(update).toHaveBeenCalled();
+  });
+});
+
+describe("reportReview", () => {
+  const report = { reviewId: "r1", reason: "inappropriate_username", details: "ignored" };
+  const onConflictDoNothing = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    getSession.mockResolvedValue({ user: { id: "u1" } });
+    selected.mockResolvedValue([{ userId: "u2" }]);
+    values.mockReturnValue({ onConflictDoNothing });
+    onConflictDoNothing.mockResolvedValue(undefined);
+  });
+
+  it("rejects signed-out users", async () => {
+    getSession.mockResolvedValue(null);
+    await expect(reportReview(report)).resolves.toMatchObject({ success: false });
+    expect(insert).not.toHaveBeenCalled();
+  });
+
+  it("requires details when the reason is other", async () => {
+    await expect(reportReview({ reviewId: "r1", reason: "other" })).resolves.toEqual({
+      success: false,
+      message: "Please describe the problem.",
+    });
+    expect(insert).not.toHaveBeenCalled();
+  });
+
+  it("blocks reporting your own review", async () => {
+    selected.mockResolvedValue([{ userId: "u1" }]);
+    await expect(reportReview(report)).resolves.toMatchObject({ success: false });
+    expect(insert).not.toHaveBeenCalled();
+  });
+
+  it("saves the report and drops details for non-other reasons", async () => {
+    await expect(reportReview(report)).resolves.toEqual({ success: true });
+    expect(values).toHaveBeenCalledWith({ reviewId: "r1", reporterId: "u1", reason: "inappropriate_username", details: null });
+    expect(onConflictDoNothing).toHaveBeenCalled();
   });
 });
