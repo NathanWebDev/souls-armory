@@ -29,7 +29,7 @@ export default async function Page({
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" user={user} isAdmin={session?.user.role === "admin"} />
+      <AppSidebar variant="inset" user={user} />
       <SidebarInset>
         <SiteHeader />
         {children}

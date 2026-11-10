@@ -18,7 +18,14 @@ vi.mock("@/shad-components/profile-form", () => ({
 }));
 
 const getUserReviews = vi.fn(async (_id: string) => [] as unknown[]);
-vi.mock("@/lib/review-routes", () => ({ getUserReviews: (id: string) => getUserReviews(id) }));
+const getReportedReviews = vi.fn(async () => [{}] as unknown[]);
+vi.mock("@/lib/review-routes", () => ({
+  getUserReviews: (id: string) => getUserReviews(id),
+  getReportedReviews: () => getReportedReviews(),
+}));
+vi.mock("@/shad-components/reported-users-card", () => ({
+  ReportedUsersCard: () => <div data-testid="reported" />,
+}));
 vi.mock("@/shad-components/my-reviews-card", () => ({
   MyReviewsCard: (props: { reviews: unknown[] }) => <div data-testid="reviews">{props.reviews.length}</div>,
 }));
@@ -52,6 +59,21 @@ describe("Profile page", () => {
     render(await Profile());
     expect(getUserReviews).toHaveBeenCalledWith("u1");
     expect(screen.getByTestId("reviews")).toHaveTextContent("2");
+  });
+
+  it("shows the reported users card to admins only", async () => {
+    const user = { id: "u1", name: "N", email: "n@example.com", image: null, description: null };
+
+    getSession.mockResolvedValue({ user: { ...user, role: "admin" } });
+    const admin = render(await Profile());
+    expect(screen.getByTestId("reported")).toBeInTheDocument();
+    admin.unmount();
+
+    getReportedReviews.mockClear();
+    getSession.mockResolvedValue({ user });
+    render(await Profile());
+    expect(screen.queryByTestId("reported")).not.toBeInTheDocument();
+    expect(getReportedReviews).not.toHaveBeenCalled();
   });
 
   it("uses an empty description and no picture when none are saved", async () => {
