@@ -1,7 +1,7 @@
 import { and, desc, eq, inArray, sql } from "drizzle-orm"
 
 import { db } from "@/db/drizzle"
-import { item, review, reviewVote, user } from "@/db/schema"
+import { item, review, reviewReport, reviewVote, user } from "@/db/schema"
 
 const reviewLimit = Number(process.env.REVIEW_LIMIT) || 10
 
@@ -22,6 +22,42 @@ export const getUserReviews = (userId: string) =>
         .innerJoin(item, eq(review.itemId, item.id))
         .where(eq(review.userId, userId))
         .orderBy(desc(review.createdAt))
+
+export interface ReportedReview {
+    id: string
+    rating: number
+    title: string
+    body: string
+    createdAt: Date
+    itemTitle: string
+    authorId: string
+    authorName: string
+    authorImage: string | null
+    authorBanned: boolean
+    reports: { reason: string; details: string | null }[]
+}
+
+export const getReportedReviews = () =>
+    db
+        .select({
+            id: review.id,
+            rating: review.rating,
+            title: review.title,
+            body: review.body,
+            createdAt: review.createdAt,
+            itemTitle: item.title,
+            authorId: user.id,
+            authorName: user.name,
+            authorImage: user.image,
+            authorBanned: sql<boolean>`coalesce(${user.banned}, false)`,
+            reports: sql<ReportedReview["reports"]>`json_agg(json_build_object('reason', ${reviewReport.reason}, 'details', ${reviewReport.details}) order by ${reviewReport.createdAt} desc)`,
+        })
+        .from(reviewReport)
+        .innerJoin(review, eq(reviewReport.reviewId, review.id))
+        .innerJoin(user, eq(review.userId, user.id))
+        .innerJoin(item, eq(review.itemId, item.id))
+        .groupBy(review.id, user.id, item.id)
+        .orderBy(desc(sql`max(${reviewReport.createdAt})`))
 
 export const getReviews = async (itemId: string, viewerId: string = "") => {
     const votes = db
