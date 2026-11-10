@@ -40,6 +40,6 @@ export const getReviews = async (itemId: string, viewerId: string = "") => {
         .innerJoin(user, eq(review.userId, user.id))
         .leftJoin(votes, eq(votes.reviewId, review.id))
         .where(eq(review.itemId, itemId))
-        .orderBy(desc(review.createdAt))
+        .orderBy(desc(sql`${review.userId} = ${viewerId}`), desc(review.createdAt))
         .limit(reviewLimit)
 }
