@@ -5,6 +5,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/db/drizzle";
 import { checkProfileUpdate } from "@/lib/profile-hook";
 import { nextCookies } from "better-auth/next-js";
+import { admin } from "better-auth/plugins";
 import { after } from "next/server";
 import { Resend } from "resend";
 
@@ -119,5 +120,5 @@ export const auth = betterAuth({
         }
       }
     },
-    plugins: [nextCookies()]
+    plugins: [admin(), nextCookies()]
 });

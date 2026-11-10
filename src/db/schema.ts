@@ -22,6 +22,10 @@ export const user = pgTable("user", {
     .notNull(),
   image: text("image"),
   description: text("description"),
+  role: text("role"),
+  banned: boolean("banned").default(false),
+  banReason: text("ban_reason"),
+  banExpires: timestamp("ban_expires"),
   createdAt: timestamp("created_at")
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
@@ -38,6 +42,7 @@ export const session = pgTable("session", {
   updatedAt: timestamp("updated_at").notNull(),
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
+  impersonatedBy: text("impersonated_by"),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
@@ -136,4 +141,21 @@ export const reviewVote = pgTable(
   ],
 );
 
-export const schema = { user, session, account, verification, item, review, reviewVote };
+export const reviewReport = pgTable(
+  "review_report",
+  {
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+    reviewId: text("review_id")
+      .notNull()
+      .references(() => review.id, { onDelete: "cascade" }),
+    reporterId: text("reporter_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    reason: text("reason").notNull(),
+    details: text("details"),
+    createdAt: timestamp("created_at").$defaultFn(() => new Date()).notNull(),
+  },
+  (t) => [unique().on(t.reviewId, t.reporterId)],
+);
+
+export const schema = { user, session, account, verification, item, review, reviewVote, reviewReport };
