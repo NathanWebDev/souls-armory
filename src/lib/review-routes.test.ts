@@ -6,7 +6,9 @@ const orderBy = vi.hoisted(() => vi.fn(() => ({ limit })));
 
 // Every builder call returns the same chain; `as` returns a stand-in subquery.
 const chain: Record<string, unknown> = {};
-for (const m of ["from", "where", "groupBy", "innerJoin", "leftJoin"]) chain[m] = () => chain;
+const where = vi.fn(() => chain);
+for (const m of ["from", "groupBy", "innerJoin", "leftJoin"]) chain[m] = () => chain;
+chain.where = where;
 chain.orderBy = orderBy;
 chain.limit = limit;
 chain.as = () => new Proxy({}, { get: () => ({}) });
@@ -19,8 +21,13 @@ describe("getUserReviews", () => {
   it("returns the user's reviews, newest first", async () => {
     const rows = [{ id: "r1", itemId: "i1", itemTitle: "Dagger", rating: 4, title: "Nice" }];
     orderBy.mockClear();
+    where.mockClear();
     (orderBy as unknown as ReturnType<typeof vi.fn>).mockReturnValueOnce(Promise.resolve(rows));
     await expect(getUserReviews("u1")).resolves.toEqual(rows);
+    const [filter] = where.mock.calls[0] as unknown as [never];
+    const { sql, params } = new PgDialect().sqlToQuery(filter);
+    expect(sql).toMatch(/"review"."user_id" = \$1/);
+    expect(params).toEqual(["u1"]);
     const [newest] = orderBy.mock.calls[0] as unknown as [never];
     expect(new PgDialect().sqlToQuery(newest).sql).toMatch(/"created_at" desc/);
   });

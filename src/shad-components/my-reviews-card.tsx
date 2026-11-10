@@ -20,7 +20,7 @@ export function MyReviewsCard({ reviews }: { reviews: MyReview[] }) {
         {reviews.length === 0 ? (
           <p className="text-muted-foreground text-sm">You haven&apos;t reviewed any weapons yet.</p>
         ) : (
-          <ItemGroup className="max-h-64 overflow-y-auto">
+          <ItemGroup className="max-h-[264px] overflow-y-auto p-1">
             {reviews.map((r) => (
               <Item key={r.id} asChild variant="outline" className="mb-2">
                 <Link href={`/item-card/${r.itemId}`}>
