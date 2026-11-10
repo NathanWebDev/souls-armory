@@ -8,6 +8,7 @@ import ReviewForm from "@/app/components/review/review-form";
 import ReviewList from "@/app/components/review/review-list";
 import ReviewSkeleton from "@/app/components/review/review-skeleton";
 import { auth } from "@/lib/auth";
+import { hasReviewed } from "@/lib/review-routes";
 import { Toaster } from "@/shad-components/ui/sonner";
 
 import StarContainer from "../../components/star-container/page";
@@ -31,6 +32,11 @@ export interface CardProps {
     attributesRequired: number[] | null;
     passiveEffects: string[] | null;
     description: string;
+}
+
+async function ReviewFormGate({ itemId, userId }: { itemId: string; userId?: string }) {
+    if (userId && await hasReviewed(itemId, userId)) return null
+    return <ReviewForm itemId={itemId} signedIn={!!userId} />
 }
 
 const attributeLabels: string[] = ['Str', 'Dex', 'Int', 'Fai', 'Arc'];
@@ -182,7 +188,9 @@ export default async function ItemCardPage({ params }: PageProps) {
                         </CardDescription>
                     </CardHeader>
                 </Card>
-                <ReviewForm itemId={fullCardData.id} signedIn={!!session} />
+                <Suspense>
+                    <ReviewFormGate itemId={fullCardData.id} userId={session?.user.id} />
+                </Suspense>
                 <Suspense fallback={<ReviewSkeleton />}>
                     <ReviewList itemId={fullCardData.id} viewerId={session?.user.id} />
                 </Suspense>
