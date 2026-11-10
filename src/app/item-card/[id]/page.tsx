@@ -4,11 +4,10 @@ import Image from "next/image";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/shad-components/ui/card";
 import ItemNotFound from "@/app/components/item-not-found/page";
 import { Separator } from "@/shad-components/ui/separator";
-import ReviewForm from "@/app/components/review/review-form";
+import ReviewFormGate from "@/app/components/review/review-form-gate";
 import ReviewList from "@/app/components/review/review-list";
 import ReviewSkeleton from "@/app/components/review/review-skeleton";
 import { auth } from "@/lib/auth";
-import { hasReviewed } from "@/lib/review-routes";
 import { Toaster } from "@/shad-components/ui/sonner";
 
 import StarContainer from "../../components/star-container/page";
@@ -32,11 +31,6 @@ export interface CardProps {
     attributesRequired: number[] | null;
     passiveEffects: string[] | null;
     description: string;
-}
-
-async function ReviewFormGate({ itemId, userId }: { itemId: string; userId?: string }) {
-    if (userId && await hasReviewed(itemId, userId)) return null
-    return <ReviewForm itemId={itemId} signedIn={!!userId} />
 }
 
 const attributeLabels: string[] = ['Str', 'Dex', 'Int', 'Fai', 'Arc'];
