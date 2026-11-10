@@ -1,13 +1,13 @@
 "use server";
 
 import { headers } from "next/headers";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { auth } from "@/lib/auth";
 import { db } from "@/db/drizzle";
-import { item, review, reviewReport, reviewVote } from "@/db/schema";
-import { SEED_WEIGHT } from "@/lib/rating";
+import { review, reviewReport, reviewVote } from "@/db/schema";
+import { recomputeRating } from "@/lib/recompute-rating";
 import { hasReviewed } from "@/lib/review-routes";
 import { formRules } from "@/app/components/form-rules";
 
@@ -39,21 +39,6 @@ const reportSchema = z.object({
 const addSchema = contentSchema.extend({ itemId: idSchema })
 const updateSchema = contentSchema.extend({ id: idSchema })
 const voteSchema = z.object({ reviewId: idSchema, value: z.union([z.literal(1), z.literal(-1)]) })
-
-const recomputeRating = (itemId: string) => {
-    const seed = sql`coalesce(${item.seedRating}, ${item.rating})`
-    const weight = sql.raw(String(SEED_WEIGHT))
-    const total = sql`coalesce((select sum(${review.rating}) from ${review} where ${review.itemId} = ${item.id}), 0)`
-    const reviews = sql`(select count(*) from ${review} where ${review.itemId} = ${item.id})`
-
-    return db
-        .update(item)
-        .set({
-            seedRating: seed,
-            rating: sql`(${seed} * ${weight} + ${total}) / (${weight} + ${reviews})`,
-        })
-        .where(eq(item.id, itemId))
-}
 
 const invalid = (error: z.ZodError) => ({ success: false as const, message: error.issues[0]?.message ?? "Invalid input." })
 
