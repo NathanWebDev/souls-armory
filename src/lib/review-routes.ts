@@ -58,6 +58,7 @@ export const getReportedReviews = () =>
         .innerJoin(item, eq(review.itemId, item.id))
         .groupBy(review.id, user.id, item.id)
         .orderBy(desc(sql`max(${reviewReport.createdAt})`))
+        .limit(50)
 
 export const getReviews = async (itemId: string, viewerId: string = "") => {
     const votes = db
