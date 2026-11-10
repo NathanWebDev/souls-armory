@@ -9,10 +9,8 @@ import {
   IconListDetails,
   IconUsers,
   IconSun,
-  IconMoon,
-  IconShield
+  IconMoon
 } from "@tabler/icons-react"
-import Link from "next/link"
 
 import { NavMain } from "@/shad-components/nav-main"
 import { NavUser } from "@/shad-components/nav-user"
@@ -20,7 +18,6 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -77,11 +74,9 @@ const data = {
 
 export function AppSidebar({
   user,
-  isAdmin,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   user?: { name: string; email: string; avatar: string | null } | null
-  isAdmin?: boolean
 }) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -102,20 +97,6 @@ export function AppSidebar({
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        {isAdmin && (
-          <SidebarGroup>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Admin">
-                  <Link href="/admin">
-                    <IconShield />
-                    <span>Admin</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroup>
-        )}
         <ThemeSwitcher items={data.themeSwitcher} />
       </SidebarContent>
       <SidebarFooter>
