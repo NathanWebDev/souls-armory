@@ -1,13 +1,27 @@
 import { and, desc, eq, inArray, sql } from "drizzle-orm"
 
 import { db } from "@/db/drizzle"
-import { review, reviewVote, user } from "@/db/schema"
+import { item, review, reviewVote, user } from "@/db/schema"
 
 const reviewLimit = Number(process.env.REVIEW_LIMIT) || 10
 
 export const hasReviewed = async (itemId: string, userId: string) =>
     !!(await db.select({ id: review.id }).from(review)
         .where(and(eq(review.itemId, itemId), eq(review.userId, userId))).limit(1)).length
+
+export const getUserReviews = (userId: string) =>
+    db
+        .select({
+            id: review.id,
+            rating: review.rating,
+            title: review.title,
+            itemId: item.id,
+            itemTitle: item.title,
+        })
+        .from(review)
+        .innerJoin(item, eq(review.itemId, item.id))
+        .where(eq(review.userId, userId))
+        .orderBy(desc(review.createdAt))
 
 export const getReviews = async (itemId: string, viewerId: string = "") => {
     const votes = db
