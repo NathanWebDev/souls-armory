@@ -17,7 +17,7 @@ vi.mock("@/shad-components/profile-form", () => ({
   ),
 }));
 
-const getUserReviews = vi.fn(async (_id: string) => [] as unknown[]);
+const getUserReviews = vi.fn<(id: string) => Promise<unknown[]>>(async () => []);
 const getReportedReviews = vi.fn(async () => [{}] as unknown[]);
 vi.mock("@/lib/review-routes", () => ({
   getUserReviews: (id: string) => getUserReviews(id),
