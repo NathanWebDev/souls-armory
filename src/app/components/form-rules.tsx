@@ -28,6 +28,18 @@ export const formRules = {
         }
     },
 
+    reportRules: {
+        reasons: {
+            inappropriate_username: "Inappropriate username",
+            inappropriate_content: "Inappropriate review content",
+            other: "Other",
+        },
+        detailsMaxLength: {
+            maxLengthValue: 500,
+            errorMessage: "Details must be 500 characters or fewer"
+        }
+    },
+
     emailRules: {
         minLength: {
             minLengthValue: 2,
