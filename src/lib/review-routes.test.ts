@@ -13,7 +13,18 @@ chain.as = () => new Proxy({}, { get: () => ({}) });
 
 vi.mock("@/db/drizzle", () => ({ db: { select: () => chain } }));
 
-import { getReviews, hasReviewed } from "./review-routes";
+import { getReviews, getUserReviews, hasReviewed } from "./review-routes";
+
+describe("getUserReviews", () => {
+  it("returns the user's reviews, newest first", async () => {
+    const rows = [{ id: "r1", itemId: "i1", itemTitle: "Dagger", rating: 4, title: "Nice" }];
+    orderBy.mockClear();
+    (orderBy as unknown as ReturnType<typeof vi.fn>).mockReturnValueOnce(Promise.resolve(rows));
+    await expect(getUserReviews("u1")).resolves.toEqual(rows);
+    const [newest] = orderBy.mock.calls[0] as unknown as [never];
+    expect(new PgDialect().sqlToQuery(newest).sql).toMatch(/"created_at" desc/);
+  });
+});
 
 describe("hasReviewed", () => {
   beforeEach(() => limit.mockReset());
