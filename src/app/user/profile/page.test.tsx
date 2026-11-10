@@ -17,6 +17,12 @@ vi.mock("@/shad-components/profile-form", () => ({
   ),
 }));
 
+const getUserReviews = vi.fn(async (_id: string) => [] as unknown[]);
+vi.mock("@/lib/review-routes", () => ({ getUserReviews: (id: string) => getUserReviews(id) }));
+vi.mock("@/shad-components/my-reviews-card", () => ({
+  MyReviewsCard: (props: { reviews: unknown[] }) => <div data-testid="reviews">{props.reviews.length}</div>,
+}));
+
 import Profile from "./page";
 
 describe("Profile page", () => {
@@ -36,6 +42,16 @@ describe("Profile page", () => {
     });
     render(await Profile());
     expect(screen.getByTestId("form")).toHaveTextContent("Nathan|Hi|https://x/y.png");
+  });
+
+  it("loads the signed-in user's reviews into the reviews card", async () => {
+    getUserReviews.mockResolvedValue([{}, {}]);
+    getSession.mockResolvedValue({
+      user: { id: "u1", name: "Nathan", email: "n@example.com", image: null, description: null },
+    });
+    render(await Profile());
+    expect(getUserReviews).toHaveBeenCalledWith("u1");
+    expect(screen.getByTestId("reviews")).toHaveTextContent("2");
   });
 
   it("uses an empty description and no picture when none are saved", async () => {
