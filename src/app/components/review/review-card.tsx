@@ -29,7 +29,7 @@ export interface ReviewData {
     viewerVote: number
 }
 
-export default function ReviewCard({ review }: { review: ReviewData }) {
+export default function ReviewCard({ review, signedIn }: { review: ReviewData; signedIn: boolean }) {
     const router = useRouter()
     const [pending, startTransition] = useTransition()
     const [editOpen, setEditOpen] = useState(false)
@@ -76,35 +76,37 @@ export default function ReviewCard({ review }: { review: ReviewData }) {
                 </div>
                 <div className="flex items-center gap-2">
                     <StarContainer rating={review.rating} className="w-24 h-8" />
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button ref={menuTrigger} variant="ghost" size="icon" aria-label="Review options" className="absolute top-4 right-4 md:static">
-                                <Ellipsis />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                            align="end"
-                            onCloseAutoFocus={(event) => {
-                                event.preventDefault()
-                                menuTrigger.current?.focus({ preventScroll: true })
-                            }}
-                        >
-                            {review.isOwner ? (
-                                <>
-                                    <DropdownMenuItem className="cursor-pointer" onSelect={() => setEditOpen(true)}>
-                                        Edit Review
+                    {(review.isOwner || signedIn) && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button ref={menuTrigger} variant="ghost" size="icon" aria-label="Review options" className="absolute top-4 right-4 md:static">
+                                    <Ellipsis />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                                align="end"
+                                onCloseAutoFocus={(event) => {
+                                    event.preventDefault()
+                                    menuTrigger.current?.focus({ preventScroll: true })
+                                }}
+                            >
+                                {review.isOwner ? (
+                                    <>
+                                        <DropdownMenuItem className="cursor-pointer" onSelect={() => setEditOpen(true)}>
+                                            Edit Review
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem className="cursor-pointer" variant="destructive" disabled={pending} onSelect={remove}>
+                                            Delete Review
+                                        </DropdownMenuItem>
+                                    </>
+                                ) : (
+                                    <DropdownMenuItem className="cursor-pointer" onSelect={() => setReportOpen(true)}>
+                                        Report User
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem className="cursor-pointer" variant="destructive" disabled={pending} onSelect={remove}>
-                                        Delete Review
-                                    </DropdownMenuItem>
-                                </>
-                            ) : (
-                                <DropdownMenuItem className="cursor-pointer" onSelect={() => setReportOpen(true)}>
-                                    Report User
-                                </DropdownMenuItem>
-                            )}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                                )}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
                 </div>
             </CardHeader>
             <CardContent className="flex flex-col gap-2">
@@ -137,7 +139,7 @@ export default function ReviewCard({ review }: { review: ReviewData }) {
             </CardFooter>
             {review.isOwner ? (
                 <ReviewDialog review={review} open={editOpen} onOpenChange={setEditOpen} />
-            ) : (
+            ) : signedIn && (
                 <ReportDialog reviewId={review.id} open={reportOpen} onOpenChange={setReportOpen} />
             )}
         </Card>

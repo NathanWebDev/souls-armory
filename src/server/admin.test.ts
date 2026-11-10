@@ -46,6 +46,14 @@ describe("admin actions", () => {
   it("bans the author and names them", async () => {
     await expect(banReportedUser("r1")).resolves.toEqual({ success: true, message: 'Banned user "Tarnished".' });
     expect(banUser).toHaveBeenCalledWith(expect.objectContaining({ body: expect.objectContaining({ userId: "u2" }) }));
+    expect(del).toHaveBeenCalled();
+  });
+
+  it("keeps the reports when the ban fails", async () => {
+    banUser.mockRejectedValue(new Error("boom"));
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    await expect(banReportedUser("r1")).resolves.toMatchObject({ success: false });
+    expect(del).not.toHaveBeenCalled();
   });
 
   it("won't let an admin ban themselves", async () => {
